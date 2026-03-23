@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>StudyCircus 🎪</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════
+   VARIABLES & RESET
+═══════════════════════════════════════════════════════════ */
+:root {
+  --ink:      #0f1923;
+  --navy:     #1D3557;
+  --red:      #E63946;
+  --blue:     #457B9D;
+  --orange:   #E07A5F;
+  --green:    #52B788;
+  --gold:     #F4A261;
+  --purple:   #9B72CF;
+  --cream:    #FDFCDC;
+  --cream2:   #F7F5C8;
+  --white:    #FFFFFF;
+  --border:   rgba(29,53,87,0.1);
+  --border2:  rgba(29,53,87,0.06);
+  --muted:    #8892a0;
+  --shadow-sm: 0 1px 4px rgba(15,25,35,0.06);
+  --shadow:    0 4px 20px rgba(15,25,35,0.1);
+  --shadow-lg: 0 12px 48px rgba(15,25,35,0.15);
+  --radius:    14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --header-h: 56px;
+  --nav-h:    52px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+input,textarea,select{font-family:inherit;}
+input:focus,textarea:focus,select:focus{outline:none;}
+a{color:inherit;text-decoration:none;}
+
+/* ═══════════════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(29,53,87,0.2);border-radius:10px;}
+
+/* ═══════════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════════ */
+.header{
+  position:sticky;top:0;z-index:50;
+  height:var(--header-h);
+  background:var(--navy);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  box-shadow:0 2px 16px rgba(29,53,87,0.3);
+}
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:1.3rem;font-weight:900;
+  color:#fff;letter-spacing:-0.3px;
+  display:flex;align-items:center;gap:8px;
+}
+.logo em{color:var(--red);font-style:normal;}
+.header-center{
+  display:flex;align-items:center;gap:8px;
+}
+.view-tabs{
+  display:flex;background:rgba(255,255,255,0.1);
+  border-radius:10px;padding:3px;gap:2px;
+}
+.view-tab{
+  padding:5px 14px;border-radius:8px;
+  font-size:0.72rem;font-weight:600;
+  color:rgba(255,255,255,0.55);
+  letter-spacing:0.3px;
+  transition:all 0.2s;
+}
+.view-tab.active{background:white;color:var(--navy);}
+.view-tab:hover:not(.active){color:rgba(255,255,255,0.85);}
+.header-right{
+  display:flex;align-items:center;gap:10px;
+}
+.clock{
+  font-family:'DM Mono',monospace;
+  font-size:0.68rem;color:rgba(255,255,255,0.4);
+  display:none;
+}
+.clock.visible{display:block;}
+.icon-btn{
+  width:34px;height:34px;border-radius:9px;
+  background:rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;transition:all 0.2s;
+}
+.icon-btn:hover{background:rgba(255,255,255,0.2);color:#fff;}
+
+/* ═══════════════════════════════════════════════════════════
+   ANALYTICS BAR
+═══════════════════════════════════════════════════════════ */
+.analytics-bar{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.analytics-bar::-webkit-scrollbar{display:none;}
+.astat{
+  display:flex;flex-direction:column;gap:2px;
+  padding:0 18px;
+  border-right:1px solid var(--border);
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.astat:first-child{padding-left:0;}
+.astat:last-child{border-right:none;}
+.astat-label{font-size:0.62rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);}
+.astat-value{font-family:'DM Mono',monospace;font-size:0.9rem;font-weight:500;color:var(--navy);}
+.astat-value.red{color:var(--red);}
+.astat-value.green{color:var(--green);}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════════════════════ */
+.app-body{
+  display:grid;
+  grid-template-columns:1fr 300px;
+  gap:0;
+  max-width:1440px;
+  margin:0 auto;
+  min-height:calc(100vh - var(--header-h) - 50px);
+}
+.main-col{padding:20px 20px 80px;min-width:0;}
+.sidebar-col{
+  border-left:1px solid var(--border);
+  background:var(--white);
+  padding:20px 16px 80px;
+  display:flex;flex-direction:column;gap:16px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATE NAV
+═══════════════════════════════════════════════════════════ */
+.date-nav{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.date-nav-title{
+  font-family:'Playfair Display',serif;
+  font-size:1.2rem;font-weight:700;color:var(--navy);
+}
+.date-nav-sub{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+.nav-arrows{display:flex;gap:6px;}
+.nav-arrow{
+  width:32px;height:32px;border-radius:8px;
+  border:1.5px solid var(--border);
+  background:white;color:var(--navy);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;transition:all 0.15s;
+}
+.nav-arrow:hover{background:var(--navy);color:white;border-color:var(--navy);}
+
+/* ═══════════════════════════════════════════════════════════
+   DAILY VIEW
+═══════════════════════════════════════════════════════════ */
+#view-daily{display:none;}
+#view-daily.active{display:block;}
+
+.daily-header-card{
+  background:var(--navy);
+  border-radius:var(--radius-lg);
+  padding:20px 24px;
+  color:white;
+  margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.daily-header-card::after{
+  content:'';position:absolute;
+  right:-20px;top:-20px;
+  width:120px;height:120px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.04);
+}
+.daily-date-big{
+  font-family:'Playfair Display',serif;
+  font-size:2.8rem;font-weight:900;line-height:1;
+}
+.daily-date-info{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  margin-top:8px;
+}
+.daily-day-name{font-size:0.85rem;font-weight:600;opacity:0.7;letter-spacing:1px;text-transform:uppercase;}
+.daily-context-badge{
+  background:rgba(255,255,255,0.12);
+  padding:4px 12px;border-radius:20px;
+  font-size:0.7rem;font-weight:500;opacity:0.9;
+}
+.exam-alert{
+  background:var(--red);
+  border-radius:var(--radius);
+  padding:12px 16px;
+  color:white;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:14px;
+  font-size:0.82rem;font-weight:600;
+}
+
+/* Daily log input */
+.daily-log-card{
+  background:white;border-radius:var(--radius);
+  border:1.5px solid var(--border);
+  padding:16px;margin-bottom:14px;
+  overflow:hidden;
+}
+.card-header-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.card-title{
+  font-size:0.78rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.8px;color:var(--muted);
+}
+.collapse-btn{font-size:0.9rem;color:var(--muted);padding:2px 6px;}
+
+.log-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.log-field{display:flex;flex-direction:column;gap:4px;}
+.log-label{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.log-input{
+  background:var(--cream);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:7px 10px;
+  font-size:0.82rem;color:var(--ink);
+  transition:border 0.15s;
+  width:100%;
+}
+.log-input:focus{border-color:var(--navy);}
+.log-input.full{grid-column:1/-1;}
+.log-textarea{
+  resize:vertical;min-height:60px;
+  background:var(--cream);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:8px 10px;
+  font-size:0.8rem;color:var(--ink);
+  line-height:1.5;
+  transition:border 0.15s;
+  width:100%;
+}
+.log-textarea:focus{border-color:var(--navy);}
+.mood-row{
+  display:flex;gap:6px;flex-wrap:wrap;
+  grid-column:1/-1;
+}
+.mood-btn{
+  padding:5px 12px;border-radius:20px;
+  font-size:0.75rem;font-weight:500;
+  border:1.5px solid var(--border);
+  background:white;color:var(--muted);
+  transition:all 0.15s;
+}
+.mood-btn.active{border-color:var(--navy);background:var(--navy);color:white;}
+.save-log-btn{
+  margin-top:12px;width:100%;
+  padding:9px;border-radius:var(--radius-sm);
+  background:var(--navy);color:white;
+  font-size:0.8rem;font-weight:600;
+  letter-spacing:0.3px;
+  transition:all 0.15s;
+}
+.save-log-btn:hover{background:#0f2440;}
+.save-log-btn.saved{background:var(--green);}
+
+/* Block list */
+.blocks-section-title{
+  font-size:0.72rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.8px;color:var(--muted);
+  margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.add-block-btn{
+  display:flex;align-items:center;gap:4px;
+  padding:4px 10px;border-radius:6px;
+  font-size:0.68rem;font-weight:600;
+  background:var(--cream);color:var(--navy);
+  border:1.5px solid var(--border);
+  transition:all 0.15s;
+}
+.add-block-btn:hover{background:var(--navy);color:white;border-color:var(--navy);}
+
+.block-item{
+  background:white;border-radius:var(--radius);
+  border:1.5px solid var(--border);
+  padding:14px 16px;
+  margin-bottom:8px;
+  position:relative;
+  transition:all 0.15s;
+  cursor:pointer;
+}
+.block-item:hover{box-shadow:var(--shadow);}
+.block-item.completed{opacity:0.55;}
+.block-item .block-stripe{
+  position:absolute;left:0;top:0;bottom:0;
+  width:4px;border-radius:4px 0 0 4px;
+}
+.block-item .block-content{padding-left:8px;}
+.block-item .bi-label{
+  font-size:0.6rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.8px;margin-bottom:3px;
+}
+.block-item .bi-title{font-size:0.88rem;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.block-item .bi-desc{font-size:0.74rem;color:#666;line-height:1.5;}
+.block-item .bi-meta{
+  display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;
+}
+.bi-tag{
+  padding:2px 8px;border-radius:20px;
+  font-size:0.62rem;font-weight:600;
+  background:var(--cream);color:var(--muted);
+  border:1px solid var(--border);
+}
+.block-actions{
+  position:absolute;right:10px;top:10px;
+  display:flex;gap:4px;opacity:0;transition:opacity 0.15s;
+}
+.block-item:hover .block-actions{opacity:1;}
+.block-act-btn{
+  width:26px;height:26px;border-radius:6px;
+  background:var(--cream);border:1px solid var(--border);
+  font-size:0.75rem;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.block-act-btn:hover{background:var(--red);color:white;border-color:var(--red);}
+.block-act-btn.edit:hover{background:var(--navy);color:white;border-color:var(--navy);}
+.block-act-btn.check:hover{background:var(--green);color:white;border-color:var(--green);}
+
+/* ═══════════════════════════════════════════════════════════
+   WEEKLY VIEW
+═══════════════════════════════════════════════════════════ */
+#view-weekly{display:none;}
+#view-weekly.active{display:block;}
+
+.week-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+}
+.wday-card{
+  background:white;
+  border-radius:var(--radius);
+  border:1.5px solid var(--border);
+  overflow:hidden;
+  transition:all 0.2s;
+  cursor:pointer;
+}
+.wday-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.wday-card.today{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,0.1);}
+.wday-card.exam-day{border-color:var(--orange);}
+
+.wday-head{
+  padding:14px 16px 12px;
+  background:var(--navy);color:white;
+  display:flex;align-items:flex-start;justify-content:space-between;
+}
+.wday-head.today-head{background:var(--red);}
+.wday-date{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;line-height:1;}
+.wday-name{font-size:0.68rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.65;margin-top:2px;}
+.wday-ctx{font-size:0.62rem;background:rgba(255,255,255,0.1);padding:3px 8px;border-radius:20px;opacity:0.85;white-space:nowrap;}
+.wday-body{padding:10px;}
+.wday-exam-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(230,57,70,0.1);color:var(--red);
+  font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
+  padding:3px 8px;border-radius:20px;
+  margin-bottom:8px;border:1px solid rgba(230,57,70,0.2);
+}
+.wday-block{
+  border-radius:8px;padding:9px 10px;margin-bottom:6px;
+  border:1px solid transparent;
+  position:relative;overflow:hidden;
+}
+.wday-block::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.wday-block .wb-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+.wday-block .wb-title{font-size:0.76rem;font-weight:600;color:var(--ink);line-height:1.3;}
+.wday-stats{
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);
+  display:flex;gap:8px;align-items:center;
+}
+.wday-stat{font-size:0.65rem;color:var(--muted);display:flex;align-items:center;gap:3px;}
+.today-badge-sm{
+  background:var(--red);color:white;
+  font-size:0.58rem;font-weight:700;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;letter-spacing:0.5px;
+  margin-bottom:6px;display:inline-block;
+}
+.add-day-btn{
+  border:2px dashed var(--border);
+  border-radius:var(--radius);
+  background:transparent;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;padding:32px;
+  color:var(--muted);font-size:0.8rem;font-weight:500;
+  cursor:pointer;transition:all 0.2s;
+  min-height:120px;
+}
+.add-day-btn:hover{border-color:var(--navy);color:var(--navy);background:rgba(29,53,87,0.03);}
+.add-day-btn .plus{font-size:1.5rem;}
+
+/* ═══════════════════════════════════════════════════════════
+   MONTHLY VIEW
+═══════════════════════════════════════════════════════════ */
+#view-monthly{display:none;}
+#view-monthly.active{display:block;}
+
+.month-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+}
+.month-head-cell{
+  text-align:center;
+  font-size:0.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:0.5px;color:var(--muted);
+  padding:6px 0 10px;
+}
+.month-cell{
+  background:white;border-radius:10px;
+  border:1.5px solid var(--border);
+  min-height:80px;padding:8px;
+  position:relative;
+  transition:all 0.15s;
+  cursor:pointer;
+}
+.month-cell:hover{box-shadow:var(--shadow);transform:scale(1.01);}
+.month-cell.empty{background:transparent;border-color:transparent;cursor:default;}
+.month-cell.today{border-color:var(--red);}
+.month-cell.has-exam{border-color:var(--orange);}
+.mc-date{
+  font-family:'DM Mono',monospace;font-size:0.8rem;font-weight:500;
+  color:var(--navy);margin-bottom:5px;
+}
+.month-cell.today .mc-date{
+  background:var(--red);color:white;
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;
+}
+.mc-dots{display:flex;gap:3px;flex-wrap:wrap;}
+.mc-dot{width:6px;height:6px;border-radius:50%;}
+.mc-exam{
+  font-size:0.58rem;font-weight:700;
+  color:var(--red);margin-top:4px;
+  text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR COMPONENTS
+═══════════════════════════════════════════════════════════ */
+.sb-section{
+  background:white;border-radius:var(--radius);
+  border:1.5px solid var(--border);
+  overflow:hidden;
+}
+.sb-head{
+  padding:12px 14px;
+  background:var(--navy);color:white;
+  font-size:0.78rem;font-weight:700;
+  letter-spacing:0.3px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.sb-head .sb-add-btn{
+  background:rgba(255,255,255,0.15);
+  color:white;border-radius:6px;
+  padding:3px 8px;font-size:0.65rem;font-weight:600;
+  transition:all 0.15s;
+}
+.sb-head .sb-add-btn:hover{background:rgba(255,255,255,0.25);}
+.sb-body{padding:12px 14px;}
+
+/* Countdown */
+.cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cd-item{
+  background:var(--cream);border-radius:10px;
+  padding:10px 11px;border:1px solid var(--border);
+}
+.cd-name{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:3px;}
+.cd-days{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:500;line-height:1;color:var(--navy);}
+.cd-days.urgent{color:var(--red);}
+.cd-days.soon{color:var(--orange);}
+.cd-unit{font-size:0.6rem;color:var(--muted);margin-left:2px;}
+.cd-date{font-size:0.6rem;color:var(--muted);margin-top:2px;}
+.cd-item.done .cd-days{color:var(--green);font-size:1.1rem;}
+
+/* Subjects */
+.subject-list{}
+.subject-row{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 0;border-bottom:1px solid var(--border2);
+  cursor:pointer;transition:all 0.15s;
+}
+.subject-row:last-child{border-bottom:none;}
+.subject-row:hover{opacity:0.7;}
+.subj-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.subj-name{font-size:0.8rem;font-weight:600;flex:1;}
+.subj-exam{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);}
+.subj-edit-icon{font-size:0.75rem;color:var(--muted);opacity:0;}
+.subject-row:hover .subj-edit-icon{opacity:1;}
+
+/* Progress */
+.prog-item{margin-bottom:12px;}
+.prog-item:last-child{margin-bottom:0;}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.prog-name{font-size:0.75rem;font-weight:600;}
+.prog-pct{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);}
+.prog-bar{height:6px;background:var(--cream);border-radius:20px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:20px;transition:width 0.6s cubic-bezier(.4,0,.2,1);}
+
+/* Notes */
+.note-item{
+  padding:8px 10px;border-radius:8px;
+  background:var(--cream);border:1px solid var(--border);
+  margin-bottom:6px;font-size:0.76rem;line-height:1.5;
+  color:#444;position:relative;
+}
+.note-item .note-del{
+  position:absolute;right:6px;top:6px;
+  font-size:0.7rem;color:var(--muted);opacity:0;
+  transition:opacity 0.15s;background:none;border:none;cursor:pointer;
+}
+.note-item:hover .note-del{opacity:1;}
+.note-add{
+  display:flex;gap:6px;margin-top:8px;
+}
+.note-add input{
+  flex:1;padding:7px 10px;
+  border:1.5px solid var(--border);
+  border-radius:8px;font-size:0.76rem;
+  background:var(--cream);
+}
+.note-add input:focus{border-color:var(--navy);}
+.note-add button{
+  padding:7px 12px;border-radius:8px;
+  background:var(--navy);color:white;
+  font-size:0.72rem;font-weight:600;
+  transition:all 0.15s;
+}
+.note-add button:hover{background:#0f2440;}
+
+/* Analytics sidebar */
+.analytics-chart{margin-top:4px;}
+.pie-legend{display:flex;flex-direction:column;gap:6px;}
+.pie-leg-item{display:flex;align-items:center;gap:8px;}
+.pie-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.pie-leg-name{font-size:0.74rem;flex:1;}
+.pie-leg-val{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);}
+.donut-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+
+/* ═══════════════════════════════════════════════════════════
+   MODALS
+═══════════════════════════════════════════════════════════ */
+.overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(15,25,35,0.55);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.2s;
+}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{
+  background:white;border-radius:var(--radius-lg);
+  width:100%;max-width:500px;
+  max-height:90vh;overflow-y:auto;
+  transform:translateY(16px) scale(0.97);
+  transition:transform 0.25s cubic-bezier(.4,0,.2,1);
+  box-shadow:var(--shadow-lg);
+}
+.overlay.open .modal{transform:translateY(0) scale(1);}
+.modal-head{
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:white;z-index:1;border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
+.modal-close{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--cream);color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;transition:all 0.15s;
+}
+.modal-close:hover{background:var(--red);color:white;}
+.modal-body{padding:20px 24px;}
+
+.form-group{margin-bottom:14px;}
+.form-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:5px;display:block;}
+.form-input{
+  width:100%;padding:9px 12px;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:0.85rem;color:var(--ink);
+  background:var(--cream);
+  transition:border 0.15s;
+}
+.form-input:focus{border-color:var(--navy);background:white;}
+.form-textarea{
+  width:100%;padding:9px 12px;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:0.82rem;color:var(--ink);
+  background:var(--cream);
+  resize:vertical;min-height:80px;line-height:1.5;
+  transition:border 0.15s;
+}
+.form-textarea:focus{border-color:var(--navy);background:white;}
+.form-select{
+  width:100%;padding:9px 12px;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:0.85rem;color:var(--ink);
+  background:var(--cream);
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892a0' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  cursor:pointer;
+}
+.form-select:focus{border-color:var(--navy);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-primary{
+  width:100%;padding:11px;border-radius:var(--radius-sm);
+  background:var(--navy);color:white;
+  font-size:0.85rem;font-weight:600;
+  transition:all 0.15s;
+}
+.btn-primary:hover{background:#0f2440;}
+.btn-danger{
+  padding:8px 16px;border-radius:var(--radius-sm);
+  background:rgba(230,57,70,0.1);color:var(--red);
+  font-size:0.8rem;font-weight:600;border:1.5px solid rgba(230,57,70,0.2);
+  transition:all 0.15s;
+}
+.btn-danger:hover{background:var(--red);color:white;}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;align-items:center;}
+
+.color-picker-row{display:flex;gap:8px;flex-wrap:wrap;}
+.color-swatch{
+  width:28px;height:28px;border-radius:50%;cursor:pointer;
+  border:2.5px solid transparent;transition:all 0.15s;
+}
+.color-swatch.selected{border-color:var(--ink);transform:scale(1.15);}
+
+/* Category tags */
+.cat-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.cat-tag{
+  padding:5px 12px;border-radius:20px;
+  font-size:0.72rem;font-weight:600;
+  border:1.5px solid;cursor:pointer;
+  transition:all 0.15s;
+  display:flex;align-items:center;gap:5px;
+}
+.cat-tag.active{color:white;}
+.cat-tag .cat-x{font-size:0.8rem;opacity:0.7;}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE NAV
+═══════════════════════════════════════════════════════════ */
+.mobile-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:60;
+  background:white;border-top:1px solid var(--border);
+  padding:8px 0 env(safe-area-inset-bottom,8px);
+  box-shadow:0 -4px 20px rgba(15,25,35,0.1);
+}
+.mobile-nav-inner{display:flex;justify-content:space-around;}
+.mnav-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 16px;
+  font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;
+  color:var(--muted);transition:color 0.15s;
+}
+.mnav-btn.active{color:var(--navy);}
+.mnav-btn .icon{font-size:1.3rem;}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .app-body{grid-template-columns:1fr;}
+  .sidebar-col{display:none;}
+  .sidebar-col.mobile-open{
+    display:flex;
+    position:fixed;inset:0;top:var(--header-h);
+    z-index:55;overflow-y:auto;
+    padding:16px 16px 80px;
+  }
+  .mobile-nav{display:block;}
+  .header-center .clock{display:none!important;}
+}
+@media(max-width:600px){
+  .header{padding:0 14px;}
+  .logo{font-size:1.1rem;}
+  .view-tabs{display:none;}
+  .main-col{padding:14px 12px 80px;}
+  .week-grid{grid-template-columns:1fr;}
+  .log-grid{grid-template-columns:1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .analytics-bar{padding:8px 14px;}
+  .month-grid{gap:2px;}
+  .month-cell{min-height:52px;padding:5px;}
+}
+@media(min-width:1200px){
+  .clock{display:block!important;}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES & ANIMATIONS
+═══════════════════════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{animation:fadeUp 0.35s ease both;}
+.hidden{display:none!important;}
+
+.empty-state{
+  text-align:center;padding:40px 20px;
+  color:var(--muted);font-size:0.82rem;
+}
+.empty-state .es-icon{font-size:2.5rem;margin-bottom:8px;}
+
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:white;
+  padding:10px 20px;border-radius:20px;
+  font-size:0.8rem;font-weight:500;
+  z-index:999;opacity:0;pointer-events:none;
+  transition:all 0.3s;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* Donut chart canvas */
+canvas.donut{display:block;margin:0 auto;}
+
+/* ═══════════════════════════════════════════════════════════
+   LINKS
+═══════════════════════════════════════════════════════════ */
+.add-link-btn{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:5px 12px;border-radius:6px;
+  font-size:0.7rem;font-weight:600;
+  background:var(--cream);color:var(--navy);
+  border:1.5px dashed var(--border);
+  margin-top:6px;transition:all 0.15s;
+}
+.add-link-btn:hover{background:var(--navy);color:white;border-color:var(--navy);}
+.link-row{
+  display:flex;gap:6px;align-items:center;
+  margin-bottom:6px;
+}
+.link-row input{
+  flex:1;padding:6px 10px;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:0.78rem;color:var(--ink);
+  background:var(--cream);
+  transition:border 0.15s;
+}
+.link-row input:focus{border-color:var(--navy);background:white;}
+.link-row input.url-input{flex:2;}
+.link-row-del{
+  width:26px;height:26px;border-radius:6px;
+  background:var(--cream);border:1px solid var(--border);
+  font-size:0.75rem;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.15s;cursor:pointer;
+}
+.link-row-del:hover{background:var(--red);color:white;border-color:var(--red);}
+
+/* Block links display */
+.block-links{
+  display:flex;flex-wrap:wrap;gap:5px;
+  margin-top:7px;
+}
+.block-link-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;
+  font-size:0.65rem;font-weight:600;
+  background:rgba(29,53,87,0.07);
+  color:var(--navy);
+  border:1px solid rgba(29,53,87,0.15);
+  text-decoration:none;
+  transition:all 0.15s;
+  cursor:pointer;
+  max-width:160px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.block-link-pill:hover{background:var(--navy);color:white;}
+.block-link-pill .link-icon{flex-shrink:0;}
+
+/* Detail modal links */
+.detail-links{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-bottom:16px;
+}
+.detail-link-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:20px;
+  font-size:0.76rem;font-weight:600;
+  background:rgba(29,53,87,0.07);
+  color:var(--navy);
+  border:1.5px solid rgba(29,53,87,0.15);
+  text-decoration:none;transition:all 0.15s;
+}
+.detail-link-pill:hover{background:var(--navy);color:white;}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="header">
+  <div class="logo">🎪 Study<em>Circus</em></div>
+  <div class="header-center">
+    <div class="view-tabs" id="desktopViewTabs">
+      <button class="view-tab" onclick="switchView('daily')"   id="tab-daily">Günlük</button>
+      <button class="view-tab" onclick="switchView('weekly')"  id="tab-weekly">Haftalık</button>
+      <button class="view-tab" onclick="switchView('monthly')" id="tab-monthly">Aylık</button>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="clock" id="liveClock"></div>
+    <button class="icon-btn" onclick="exportData()" title="Veriyi Dışa Aktar (JSON indir)">📤</button>
+    <button class="icon-btn" onclick="openModal('importModal')" title="Veriyi İçe Aktar">📥</button>
+    <button class="icon-btn" onclick="openModal('addDayModal')" title="Gün ekle">＋</button>
+    <button class="icon-btn" onclick="toggleSidebar()" title="Panel" id="sidebarToggleBtn">☰</button>
+  </div>
+</header>
+
+<!-- ═══════ ANALYTICS BAR ═══════ -->
+<div class="analytics-bar" id="analyticsBar"></div>
+
+<!-- ═══════ APP BODY ═══════ -->
+<div class="app-body">
+
+  <!-- MAIN COLUMN -->
+  <div class="main-col">
+
+    <!-- DATE NAV -->
+    <div class="date-nav" id="dateNav">
+      <div>
+        <div class="date-nav-title" id="dateNavTitle">—</div>
+        <div class="date-nav-sub" id="dateNavSub">—</div>
+      </div>
+      <div class="nav-arrows">
+        <button class="nav-arrow" onclick="navigate(-1)">←</button>
+        <button class="nav-arrow" onclick="goToday()">Bugün</button>
+        <button class="nav-arrow" onclick="navigate(1)">→</button>
+      </div>
+    </div>
+
+    <!-- DAILY VIEW -->
+    <div id="view-daily">
+      <div id="dailyContent"></div>
+    </div>
+
+    <!-- WEEKLY VIEW -->
+    <div id="view-weekly">
+      <div class="week-grid" id="weekGrid"></div>
+    </div>
+
+    <!-- MONTHLY VIEW -->
+    <div id="view-monthly">
+      <div class="month-grid" id="monthGrid"></div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar-col" id="sidebarCol">
+
+    <div class="sb-section">
+      <div class="sb-head">⏳ Geri Sayım</div>
+      <div class="sb-body"><div class="cd-grid" id="countdownGrid"></div></div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-head">
+        📚 Dersler
+        <button class="sb-add-btn" onclick="openModal('addSubjectModal')">+ Ekle</button>
+      </div>
+      <div class="sb-body">
+        <div class="subject-list" id="subjectList"></div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-head">
+        🏷 Kategoriler
+        <button class="sb-add-btn" onclick="openModal('addCategoryModal')">+ Ekle</button>
+      </div>
+      <div class="sb-body">
+        <div class="cat-grid" id="categoryList"></div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-head">📊 Analitik</div>
+      <div class="sb-body">
+        <canvas class="donut" id="donutChart" width="140" height="140"></canvas>
+        <div class="pie-legend" id="pieLegend"></div>
+      </div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-head">📈 Hazırlık</div>
+      <div class="sb-body" id="progressSection"></div>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-head">
+        📝 Genel Notlar
+        <button class="sb-add-btn" onclick="focusNoteInput()">+ Not</button>
+      </div>
+      <div class="sb-body">
+        <div id="generalNotesList"></div>
+        <div class="note-add">
+          <input type="text" id="generalNoteInput" placeholder="Nota ekle…" onkeydown="if(event.key==='Enter')addGeneralNote()">
+          <button onclick="addGeneralNote()">Ekle</button>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ═══════ MOBILE NAV ═══════ -->
+<nav class="mobile-nav">
+  <div class="mobile-nav-inner">
+    <button class="mnav-btn" onclick="switchView('daily')"   id="mnav-daily"><span class="icon">📅</span>Günlük</button>
+    <button class="mnav-btn" onclick="switchView('weekly')"  id="mnav-weekly"><span class="icon">📆</span>Haftalık</button>
+    <button class="mnav-btn" onclick="switchView('monthly')" id="mnav-monthly"><span class="icon">🗓</span>Aylık</button>
+    <button class="mnav-btn" onclick="toggleSidebar()"       id="mnav-sidebar"><span class="icon">☰</span>Panel</button>
+  </div>
+</nav>
+
+<!-- ═══════ TOAST ═══════ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Add Block Modal -->
+<div class="overlay" id="addBlockModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="addBlockModalTitle">Blok Ekle</div>
+      <button class="modal-close" onclick="closeModal('addBlockModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="blockDateTarget">
+      <input type="hidden" id="blockEditId">
+      <div class="form-group">
+        <label class="form-label">Başlık</label>
+        <input class="form-input" id="blockTitle" placeholder="Calculus: İntegral Teknikleri">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori / Tip</label>
+          <select class="form-select" id="blockCategory">
+            <!-- filled by JS -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Zaman Dilimi</label>
+          <select class="form-select" id="blockTimeSlot">
+            <option value="sabah">🌅 Sabah</option>
+            <option value="öğlen">☀️ Öğlen</option>
+            <option value="öğleden sonra">🌤 Öğleden Sonra</option>
+            <option value="akşam">🌆 Akşam</option>
+            <option value="gece">🌙 Gece</option>
+            <option value="tüm gün">📅 Tüm Gün</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Başlangıç Saati</label>
+          <input class="form-input" id="blockStartTime" type="time">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bitiş Saati</label>
+          <input class="form-input" id="blockEndTime" type="time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">İlgili Ders</label>
+        <select class="form-select" id="blockSubject">
+          <option value="">— Seçiniz —</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Açıklama / Taktik</label>
+        <textarea class="form-textarea" id="blockDesc" placeholder="Detaylar, taktikler, öncelikler…"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🔗 Linkler</label>
+        <div id="blockLinksContainer"></div>
+        <button type="button" class="add-link-btn" onclick="addLinkRow()">＋ Link Ekle</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-danger hidden" id="blockDeleteBtn" onclick="deleteBlock()">Sil</button>
+        <button class="btn-primary" onclick="saveBlock()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Day Modal -->
+<div class="overlay" id="addDayModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Gün Ekle</div>
+      <button class="modal-close" onclick="closeModal('addDayModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tarih</label>
+        <input class="form-input" id="newDayDate" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bağlam / Not (opsiyonel)</label>
+        <input class="form-input" id="newDayContext" placeholder="Örn: Tam Gün Kütüphane">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sınav Günü?</label>
+        <input class="form-input" id="newDayExam" placeholder="Boş bırakılabilir — Örn: Calculus Sınavı · 15:30">
+      </div>
+      <button class="btn-primary" onclick="saveDay()">Gün Ekle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Subject Modal -->
+<div class="overlay" id="addSubjectModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="subjectModalTitle">Ders Ekle</div>
+      <button class="modal-close" onclick="closeModal('addSubjectModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editSubjectId">
+      <div class="form-group">
+        <label class="form-label">Ders Adı</label>
+        <input class="form-input" id="subjectName" placeholder="Calculus">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Sınav Tarihi</label>
+          <input class="form-input" id="subjectExamDate" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sınav Saati</label>
+          <input class="form-input" id="subjectExamTime" type="time">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Renk</label>
+        <div class="color-picker-row" id="subjectColorPicker"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hazırlık (%)</label>
+        <input class="form-input" id="subjectProgress" type="number" min="0" max="100" placeholder="0-100">
+      </div>
+      <div class="btn-row">
+        <button class="btn-danger hidden" id="subjectDeleteBtn" onclick="deleteSubject()">Sil</button>
+        <button class="btn-primary" onclick="saveSubject()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="overlay" id="addCategoryModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Kategori Ekle</div>
+      <button class="modal-close" onclick="closeModal('addCategoryModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Kategori Adı</label>
+        <input class="form-input" id="catName" placeholder="Örn: Study, Break, Review…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Renk</label>
+        <div class="color-picker-row" id="catColorPicker"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <input class="form-input" id="catEmoji" placeholder="📚" maxlength="4">
+      </div>
+      <button class="btn-primary" onclick="saveCategory()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="overlay" id="importModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📥 Veriyi İçe Aktar</div>
+      <button class="modal-close" onclick="closeModal('importModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:.82rem;color:#555;line-height:1.6;margin-bottom:14px;">Başka cihazdan indirdiğin <strong>.json</strong> dosyasını seç. <span style="color:var(--red);font-weight:600;">Mevcut verinin üzerine yazılır!</span></p>
+      <div class="form-group">
+        <label class="form-label">JSON Dosyası Seç</label>
+        <input type="file" id="importFileInput" accept=".json,application/json" class="form-input" style="padding:6px 10px;cursor:pointer;">
+      </div>
+      <div id="importPreview" style="display:none;background:var(--cream);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:.76rem;color:#555;margin-bottom:14px;line-height:1.7;"></div>
+      <div class="btn-row">
+        <button class="btn-danger" onclick="closeModal('importModal')">İptal</button>
+        <button class="btn-primary" id="importConfirmBtn" onclick="importData()" style="opacity:.4;pointer-events:none;">İçe Aktar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="blockDetailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="detailTitle">—</div>
+      <button class="modal-close" onclick="closeModal('blockDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+const STORAGE_KEY = 'studyCircus_v3';
+let state = {};
+let currentView = 'weekly';
+let currentDate = new Date();
+
+/* ═══════════════════════════════════════════════════════════
+   DEFAULT DATA  (24 Mar – 3 Apr 2026)
+   Tabloya göre güncellendi
+═══════════════════════════════════════════════════════════ */
+function buildDefaultState() {
+  const subjects = [
+    { id:'s1', name:'Calculus',     color:'#1D3557', examDate:'2026-03-30', examTime:'15:30', progress:72 },
+    { id:'s2', name:'Fizik',        color:'#457B9D', examDate:'2026-03-31', examTime:'',      progress:55 },
+    { id:'s3', name:'Ayrık Mat.',   color:'#9B72CF', examDate:'2026-04-01', examTime:'',      progress:35 },
+    { id:'s4', name:'Lineer Cebir', color:'#52B788', examDate:'2026-04-02', examTime:'',      progress:40 },
+    { id:'s5', name:'Prog 2',       color:'#E07A5F', examDate:'2026-04-03', examTime:'09:00', progress:60 },
+  ];
+
+  const categories = [
+    { id:'c1', name:'Study',    color:'#1D3557', emoji:'📚' },
+    { id:'c2', name:'Break',    color:'#F4A261', emoji:'☕' },
+    { id:'c3', name:'Review',   color:'#52B788', emoji:'🔁' },
+    { id:'c4', name:'Exam',     color:'#E63946', emoji:'🔴' },
+    { id:'c5', name:'Final',    color:'#E07A5F', emoji:'🏁' },
+  ];
+
+  const D = (y,m,d) => `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+  const rawDays = [
+    // ── 24 Mart Salı ── Okul Sonrası (Yorgun)
+    { date: D(2026,3,24), context:'Okul Sonrası (Yorgun)', examToday: null,
+      blocks:[
+        { catId:'c1', subjectId:'s1', title:'Calculus: Temel İntegral', timeSlot:'akşam', startTime:'18:00', endTime:'20:00',
+          desc:'Temel integral tekniklerini gözden geçir. Yorgun kafayla okuma — sadece örnek sorular çöz. Formül kağıdını yanında tut.' },
+        { catId:'c1', subjectId:'s2', title:'Fizik: Ch 23 — E-Alan', timeSlot:'akşam', startTime:'20:30', endTime:'21:30',
+          desc:'Elektrik alanı formülleri ve nokta yük problemleri. Gauss yasasına giriş.' },
+      ]
+    },
+    // ── 25 Mart Çarşamba ── Tam Gün Kütüphane
+    { date: D(2026,3,25), context:'Tam Gün Kütüphane', examToday: null,
+      blocks:[
+        { catId:'c1', subjectId:'s1', title:'Calculus: Teknikler — LAPTÜ / u-sub', timeSlot:'sabah', startTime:'10:00', endTime:'13:00',
+          desc:'Değişken değiştirme (u-sub) ve LAPTÜ. Hoca soruları üzerinden formül kağıdınla ilerle.' },
+        { catId:'c2', subjectId:null, title:'Öğle Molası', timeSlot:'öğlen', startTime:'13:00', endTime:'14:00',
+          desc:'Ekran süresi yok. Gözlerini dinlendir.' },
+        { catId:'c1', subjectId:'s2', title:'Fizik: Ch 24-25 — Gauss/Potansiyel', timeSlot:'öğleden sonra', startTime:'14:00', endTime:'17:00',
+          desc:'Akı, Gauss Yasası simetrisi, elektrik potansiyeli. Soruda 10 dk takılırsan video çözüme geç.' },
+      ]
+    },
+    // ── 26 Mart Perşembe ── Kütüphane (Ders Arası)
+    { date: D(2026,3,26), context:'Kütüphane (Ders Arası)', examToday: null,
+      blocks:[
+        { catId:'c1', subjectId:'s2', title:'Fizik: Problem Çözümleri', timeSlot:'öğleden sonra', startTime:'13:00', endTime:'16:00',
+          desc:'Ch 23–25 üzerinden karma problemler. Yanlışları flashcard yap.' },
+        { catId:'c1', subjectId:'s3', title:'Ayrık: Logic & Set Theory', timeSlot:'akşam', startTime:'17:00', endTime:'18:30',
+          desc:'Temel mantık bağlaçları, küme operasyonları, Venn diyagramları.' },
+      ]
+    },
+    // ── 27 Mart Cuma ── Tam Gün Kütüphane
+    { date: D(2026,3,27), context:'Tam Gün Kütüphane', examToday: null,
+      blocks:[
+        { catId:'c1', subjectId:'s1', title:'Calculus: Alan & Hacim', timeSlot:'sabah', startTime:'10:00', endTime:'13:00',
+          desc:'Dönel cisimler (disk/silindir yöntemi), eğriler arası alan.' },
+        { catId:'c1', subjectId:'s4', title:'Lineer Cebir: Row Reduction & Echelon', timeSlot:'öğleden sonra', startTime:'14:00', endTime:'17:00',
+          desc:'Gaussian eliminasyon, REF/RREF, pivot bulma. Matris şeması çizerek çalış.' },
+      ]
+    },
+    // ── 28 Mart Cumartesi ── Ev / Kütüphane
+    { date: D(2026,3,28), context:'Ev / Kütüphane', examToday: null,
+      blocks:[
+        { catId:'c1', subjectId:'s3', title:'Ayrık: Methods of Proof (1/10)', timeSlot:'sabah', startTime:'10:00', endTime:'13:00',
+          desc:'Doğrudan ispat, çelişki ile ispat, tümevarım.' },
+        { catId:'c1', subjectId:'s4', title:'Lineer: Vektörler + Prog 2 Raporlara 1 saat göz at', timeSlot:'öğleden sonra', startTime:'14:00', endTime:'17:00',
+          desc:'Vektör uzayı temelleri. Prog 2 için raporlara 1 saat göz at.' },
+      ]
+    },
+    // ── 29 Mart Pazar ── Calculus Günü
+    { date: D(2026,3,29), context:'Calculus Günü ☀️', examToday: null,
+      blocks:[
+        { catId:'c3', subjectId:'s1', title:'Calculus: Genel Prova (Deneme)', timeSlot:'sabah', startTime:'10:00', endTime:'13:00',
+          desc:'Tüm konuları kapsayan mock exam. Süre tutarak çöz.' },
+        { catId:'c3', subjectId:'s2', title:'Fizik: Formül & Hızlı Tekrar', timeSlot:'öğleden sonra', startTime:'14:00', endTime:'16:00',
+          desc:'Formül sayfası oluştur / pekiştir. Ch 23–25 anahtar formülleri.' },
+      ]
+    },
+    // ── 30 Mart Pazartesi ── Calculus Sınavı 15:30
+    { date: D(2026,3,30), context:'Calculus Sınavı 15:30 🔴', examToday:'Calculus Sınavı · 15:30',
+      blocks:[
+        { catId:'c5', subjectId:'s1', title:'Calculus: Son Bakış', timeSlot:'sabah', startTime:'09:00', endTime:'11:00',
+          desc:'Sadece formül kağıdı ve 2–3 soru çöz. Yeni konu öğrenme yok. Öğle saati tampon bırak, dinlen.' },
+        { catId:'c1', subjectId:'s2', title:'Akşam — Fizik Final Push', timeSlot:'akşam', startTime:'19:00', endTime:'21:00',
+          desc:'Sınavdan sonra enerjin varsa Fizik Ch 26–27\'ye giriş yap. Yoksa dinlen, yarın erken başla.' },
+      ]
+    },
+    // ── 31 Mart Salı ── Fizik Sınavı
+    { date: D(2026,3,31), context:'Fizik Sınavı 🔴', examToday:'Fizik Sınavı',
+      blocks:[
+        { catId:'c5', subjectId:'s2', title:'Fizik: Son Bakış', timeSlot:'sabah', startTime:'09:00', endTime:'11:00',
+          desc:'Formül kağıdı gözden geçir. Gauss, potansiyel, kapasitör formülleri. Yeni soru çözme.' },
+        { catId:'c1', subjectId:'s3', title:'Ayrık: Final Push', timeSlot:'akşam', startTime:'19:00', endTime:'21:30',
+          desc:'Logic, Set Theory, Methods of Proof — tüm konuların özet notunu çıkar.' },
+      ]
+    },
+    // ── 1 Nisan Çarşamba ── Ayrık Sınavı
+    { date: D(2026,4,1), context:'Ayrık Sınavı 🔴', examToday:'Ayrık Matematik Sınavı',
+      blocks:[
+        { catId:'c5', subjectId:'s3', title:'Ayrık: Son Bakış', timeSlot:'sabah', startTime:'09:00', endTime:'11:00',
+          desc:'İspat yöntemleri, mantık tabloları, sayma prensipleri.' },
+        { catId:'c1', subjectId:'s4', title:'Lineer Cebir: Final Push', timeSlot:'akşam', startTime:'19:00', endTime:'21:30',
+          desc:'Determinant, özdeğer, özvektör. Temel teorem gruplarını tekrar et.' },
+      ]
+    },
+    // ── 2 Nisan Perşembe ── Lineer Cebir Sınavı
+    { date: D(2026,4,2), context:'Lineer Cebir Sınavı 🔴', examToday:'Lineer Cebir Sınavı',
+      blocks:[
+        { catId:'c5', subjectId:'s4', title:'Lineer Cebir: Son Bakış', timeSlot:'sabah', startTime:'09:00', endTime:'11:00',
+          desc:'Row reduction, determinant, eigenvalue. Hızlı formül kontrolü.' },
+        { catId:'c1', subjectId:'s5', title:'Prog 2: Final Push — Output Soruları', timeSlot:'öğleden sonra', startTime:'14:00', endTime:'17:00',
+          desc:'Output soruları üzerinden geç. Her soru tipini en az bir kez çöz.' },
+      ]
+    },
+    // ── 3 Nisan Cuma ── Prog 2 Sınavı 09:00
+    { date: D(2026,4,3), context:'Prog 2 Sınavı 09:00 ☕', examToday:'Prog 2 Sınavı · 09:00',
+      blocks:[
+        { catId:'c4', subjectId:'s5', title:'Prog 2 Sınavı — Kahve & Başarı! ☕', timeSlot:'sabah', startTime:'09:00', endTime:'11:00',
+          desc:'Erken uyan, hafif kahvaltı, formül kağıdına son bak. Bildiğin her şeyi yaz. Başarılar! 🎉' },
+      ]
+    },
+    // ── 4 Nisan Cumartesi ── Sınav haftası bitti
+    { date: D(2026,4,4), context:'Sınav Haftası Bitti 🎉', examToday: null,
+      blocks:[
+        { catId:'c2', subjectId:null, title:'Dinlenme Günü 🎉', timeSlot:'tüm gün', startTime:'', endTime:'',
+          desc:'5 sınavı tamamladın. Bugün dinlen, hiçbir şey çalışma. Hak ettin!' },
+      ]
+    },
+  ];
+
+  const days = {};
+
+  rawDays.forEach(raw => {
+    const dayBlocks = raw.blocks.map((b,i) => ({
+      id: `b_${raw.date}_${i}_${Math.random().toString(36).slice(2,6)}`,
+      catId: b.catId,
+      subjectId: b.subjectId || null,
+      title: b.title,
+      timeSlot: b.timeSlot,
+      startTime: b.startTime || '',
+      endTime: b.endTime || '',
+      desc: b.desc,
+      completed: false,
+    }));
+    days[raw.date] = {
+      date: raw.date,
+      context: raw.context || '',
+      examToday: raw.examToday || null,
+      blocks: dayBlocks,
+      log: null,
+      notes: [],
+    };
+  });
+
+  return {
+    subjects,
+    categories,
+    days,
+    generalNotes: [
+      'Soruda 10 dk takılırsan video çözüme geç, hatanı flashcard yap.',
+      'Her oturumda formül kağıdını yanında tut.',
+      'Sınav gecesi 23:00\'da uyu — geç gece çalışma yasak.',
+    ],
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PERSISTENCE
+═══════════════════════════════════════════════════════════ */
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) { state = JSON.parse(saved); return; }
+  } catch(e) {}
+  state = buildDefaultState();
+  saveState();
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════════ */
+const MONTHS_TR  = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const MONTHS_SH  = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+const DAYS_TR    = ['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+const DAYS_SH    = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+
+function toDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fromDateStr(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function todayStr() { return toDateStr(new Date()); }
+function isToday(ds) { return ds === todayStr(); }
+
+function daysUntil(ds) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  const d = fromDateStr(ds);
+  return Math.round((d - t) / 86400000);
+}
+
+function getCat(id)     { return state.categories.find(c=>c.id===id) || {name:'—',color:'#ccc',emoji:''}; }
+function getSubject(id) { return state.subjects.find(s=>s.id===id); }
+
+function catStyle(catId) {
+  const c = getCat(catId);
+  return { color: c.color, bg: c.color+'18', border: c.color+'40' };
+}
+
+function uid() { return '_' + Math.random().toString(36).slice(2,10); }
+
+function fmt(ds) {
+  const d = fromDateStr(ds);
+  return `${d.getDate()} ${MONTHS_SH[d.getMonth()]}`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VIEW SWITCHING
+═══════════════════════════════════════════════════════════ */
+function switchView(v) {
+  currentView = v;
+  ['daily','weekly','monthly'].forEach(x => {
+    document.getElementById('view-'+x).classList.toggle('active', x===v);
+    const tab = document.getElementById('tab-'+x);
+    if(tab) tab.classList.toggle('active', x===v);
+    const mn = document.getElementById('mnav-'+x);
+    if(mn) mn.classList.toggle('active', x===v);
+  });
+  renderView();
+  updateAnalyticsBar();
+}
+
+function navigate(dir) {
+  const d = new Date(currentDate);
+  if (currentView === 'daily')   d.setDate(d.getDate() + dir);
+  if (currentView === 'weekly')  d.setDate(d.getDate() + dir * 7);
+  if (currentView === 'monthly') d.setMonth(d.getMonth() + dir);
+  currentDate = d;
+  renderView();
+  updateAnalyticsBar();
+}
+
+function goToday() { currentDate = new Date(); renderView(); updateAnalyticsBar(); }
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER DISPATCH
+═══════════════════════════════════════════════════════════ */
+function renderView() {
+  if (currentView === 'daily')   renderDaily();
+  if (currentView === 'weekly')  renderWeekly();
+  if (currentView === 'monthly') renderMonthly();
+  updateDateNav();
+}
+
+function updateDateNav() {
+  const el = document.getElementById('dateNavTitle');
+  const sub = document.getElementById('dateNavSub');
+  if (currentView === 'daily') {
+    const ds = toDateStr(currentDate);
+    el.textContent = `${DAYS_TR[currentDate.getDay()]}, ${currentDate.getDate()} ${MONTHS_TR[currentDate.getMonth()]}`;
+    sub.textContent = isToday(ds) ? '— Bugün' : `${daysUntil(ds)>0?daysUntil(ds)+' gün sonra':'geçmiş'}`;
+  }
+  if (currentView === 'weekly') {
+    const mon = getWeekStart(currentDate);
+    const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+    el.textContent = `${mon.getDate()} ${MONTHS_SH[mon.getMonth()]} – ${sun.getDate()} ${MONTHS_SH[sun.getMonth()]} ${sun.getFullYear()}`;
+    sub.textContent = 'Haftalık Plan';
+  }
+  if (currentView === 'monthly') {
+    el.textContent = `${MONTHS_TR[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+    sub.textContent = 'Aylık Görünüm';
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DAILY VIEW
+═══════════════════════════════════════════════════════════ */
+function renderDaily() {
+  const ds = toDateStr(currentDate);
+  const day = state.days[ds];
+  const el = document.getElementById('dailyContent');
+
+  if (!day) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">📭</div>
+        <div>Bu gün için plan bulunamadı.</div>
+        <button class="add-block-btn" style="margin:12px auto;display:inline-flex;" onclick="openAddBlockForDate('${ds}')">+ Blok Ekle</button>
+      </div>
+      <button class="add-day-btn" onclick="prefillAddDay('${ds}')">
+        <div class="plus">＋</div>
+        <div>Bu günü planlamaya ekle</div>
+      </button>`;
+    return;
+  }
+
+  const today = isToday(ds);
+
+  let html = `
+    <div class="daily-header-card fade-up">
+      <div class="daily-date-big">${currentDate.getDate()}</div>
+      <div class="daily-date-info">
+        <div>
+          <div class="daily-day-name">${DAYS_TR[currentDate.getDay()]} · ${MONTHS_TR[currentDate.getMonth()]} ${currentDate.getFullYear()}</div>
+          ${today ? '<div style="font-size:.72rem;color:rgba(255,255,255,.5);margin-top:2px;">Bugün</div>' : ''}
+        </div>
+        ${day.context ? `<div class="daily-context-badge">${day.context}</div>` : ''}
+      </div>
+    </div>`;
+
+  if (day.examToday) {
+    html += `<div class="exam-alert fade-up">🔴 ${day.examToday}</div>`;
+  }
+
+  // Daily log card
+  const log = day.log || {};
+  html += `
+    <div class="daily-log-card fade-up">
+      <div class="card-header-row">
+        <span class="card-title">📊 Günlük Veri</span>
+      </div>
+      <div class="log-grid">
+        <div class="log-field">
+          <label class="log-label">Çalışma Süresi (dk)</label>
+          <input class="log-input" id="log_study" type="number" min="0" placeholder="120" value="${log.studyMin||''}">
+        </div>
+        <div class="log-field">
+          <label class="log-label">Mola Süresi (dk)</label>
+          <input class="log-input" id="log_break" type="number" min="0" placeholder="30" value="${log.breakMin||''}">
+        </div>
+        <div class="log-field">
+          <label class="log-label">Tamamlanan Görev</label>
+          <input class="log-input" id="log_tasks" type="number" min="0" placeholder="5" value="${log.tasksCompleted||''}">
+        </div>
+        <div class="log-field">
+          <label class="log-label">Soru Çözüldü</label>
+          <input class="log-input" id="log_questions" type="number" min="0" placeholder="20" value="${log.questionsSolved||''}">
+        </div>
+        <div class="log-field">
+          <label class="log-label">Enerji Seviyesi (1–5)</label>
+          <input class="log-input" id="log_energy" type="number" min="1" max="5" placeholder="3" value="${log.energy||''}">
+        </div>
+        <div class="log-field">
+          <label class="log-label">Odaklanma (1–5)</label>
+          <input class="log-input" id="log_focus" type="number" min="1" max="5" placeholder="3" value="${log.focus||''}">
+        </div>
+        <div class="log-field" style="grid-column:1/-1;">
+          <label class="log-label">Ruh Hali</label>
+          <div class="mood-row">
+            ${['😴 Yorgun','😐 Normal','😊 İyi','🔥 Muhteşem','😤 Stresli','😰 Kaygılı'].map(m =>
+              `<button class="mood-btn${log.mood===m?' active':''}" onclick="selectMood(this,'${m}')" data-mood="${m}">${m}</button>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="log-field" style="grid-column:1/-1;">
+          <label class="log-label">Günlük Not / Refleksiyon</label>
+          <textarea class="log-textarea" id="log_note" placeholder="Bugün ne öğrendim, ne zorlandım…">${log.note||''}</textarea>
+        </div>
+      </div>
+      <button class="save-log-btn" id="saveLogBtn" onclick="saveLog('${ds}')">Günlük Veriyi Kaydet</button>
+    </div>`;
+
+  // Blocks
+  html += `
+    <div class="fade-up">
+      <div class="blocks-section-title">
+        Bloklar
+        <button class="add-block-btn" onclick="openAddBlockForDate('${ds}')">＋ Blok Ekle</button>
+      </div>`;
+
+  if (!day.blocks || day.blocks.length === 0) {
+    html += `<div class="empty-state" style="padding:24px 0;"><div>Henüz blok yok.</div></div>`;
+  } else {
+    day.blocks.forEach(b => { html += renderBlockItem(b, ds); });
+  }
+
+  // Day-level notes
+  html += `
+      <div style="margin-top:16px;">
+        <div class="blocks-section-title">Gün Notları</div>
+        <div id="dayNotesList_${ds}">`;
+  (day.notes||[]).forEach((n,i) => {
+    html += `<div class="note-item">${escHtml(n)}<button class="note-del" onclick="deleteDayNote('${ds}',${i})">✕</button></div>`;
+  });
+  html += `</div>
+        <div class="note-add">
+          <input type="text" id="dayNoteInput_${ds}" placeholder="Gün notu ekle…" onkeydown="if(event.key==='Enter')addDayNote('${ds}')">
+          <button onclick="addDayNote('${ds}')">Ekle</button>
+        </div>
+      </div>
+    </div>`;
+
+  el.innerHTML = html;
+}
+
+function renderBlockItem(b, ds) {
+  const cat = getCat(b.catId);
+  const subj = b.subjectId ? getSubject(b.subjectId) : null;
+  const cs = catStyle(b.catId);
+  const timeStr = b.startTime ? `${b.startTime}${b.endTime?'–'+b.endTime:''}` : (b.timeSlot||'');
+  const linksHtml = (b.links&&b.links.length) ? `
+    <div class="block-links">
+      ${b.links.map(lnk=>`<a class="block-link-pill" href="${escHtml(lnk.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="link-icon">🔗</span>${escHtml(lnk.label)}</a>`).join('')}
+    </div>` : '';
+  return `
+    <div class="block-item${b.completed?' completed':''}" onclick="openBlockDetail('${b.id}','${ds}')">
+      <div class="block-stripe" style="background:${cat.color}"></div>
+      <div class="block-content">
+        <div class="bi-label" style="color:${cat.color}">${cat.emoji} ${cat.name}</div>
+        <div class="bi-title">${escHtml(b.title)}</div>
+        ${b.desc ? `<div class="bi-desc">${escHtml(b.desc.slice(0,100))}${b.desc.length>100?'…':''}</div>` : ''}
+        <div class="bi-meta">
+          ${timeStr ? `<span class="bi-tag">🕐 ${timeStr}</span>` : ''}
+          ${subj ? `<span class="bi-tag" style="background:${subj.color}22;color:${subj.color};border-color:${subj.color}44">${subj.name}</span>` : ''}
+          ${b.completed ? '<span class="bi-tag" style="background:#52B78820;color:#52B788;border-color:#52B78840">✓ Tamamlandı</span>' : ''}
+          ${(b.links&&b.links.length) ? `<span class="bi-tag">🔗 ${b.links.length} link</span>` : ''}
+        </div>
+        ${linksHtml}
+      </div>
+      <div class="block-actions">
+        <button class="block-act-btn check" onclick="event.stopPropagation();toggleComplete('${b.id}','${ds}')" title="${b.completed?'Geri al':'Tamamla'}">✓</button>
+        <button class="block-act-btn edit" onclick="event.stopPropagation();openEditBlock('${b.id}','${ds}')" title="Düzenle">✏</button>
+        <button class="block-act-btn" onclick="event.stopPropagation();deleteBlockConfirm('${b.id}','${ds}')" title="Sil">✕</button>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WEEKLY VIEW
+═══════════════════════════════════════════════════════════ */
+function getWeekStart(d) {
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1 - day);
+  const mon = new Date(d);
+  mon.setDate(d.getDate() + diff);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function renderWeekly() {
+  const grid = document.getElementById('weekGrid');
+  const mon = getWeekStart(currentDate);
+  let html = '';
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(mon); d.setDate(mon.getDate() + i);
+    const ds = toDateStr(d);
+    const day = state.days[ds];
+    const today = isToday(ds);
+    const completed = day ? day.blocks.filter(b=>b.completed).length : 0;
+    const total = day ? day.blocks.length : 0;
+    const log = day && day.log;
+
+    html += `<div class="wday-card${today?' today':''}${day&&day.examToday?' exam-day':''}" onclick="goToDay('${ds}')">
+      <div class="wday-head${today?' today-head':''}">
+        <div>
+          <div class="wday-date">${d.getDate()}</div>
+          <div class="wday-name">${DAYS_SH[d.getDay()]} · ${MONTHS_SH[d.getMonth()]}</div>
+        </div>
+        ${day&&day.context ? `<div class="wday-ctx">${day.context.slice(0,20)}</div>` : ''}
+      </div>
+      <div class="wday-body">
+        ${today ? '<div class="today-badge-sm">BUGÜN</div>' : ''}
+        ${day&&day.examToday ? `<div class="wday-exam-pill">🔴 ${day.examToday}</div>` : ''}`;
+
+    if (day && day.blocks.length > 0) {
+      day.blocks.slice(0,3).forEach(b => {
+        const cat = getCat(b.catId);
+        html += `
+          <div class="wday-block${b.completed?' completed':''}" style="background:${cat.color}14;border-color:${cat.color}30">
+            <div class="wb-label" style="color:${cat.color}">${cat.emoji} ${cat.name}</div>
+            <div class="wb-title">${escHtml(b.title)}</div>
+          </div>`;
+      });
+      if (day.blocks.length > 3) html += `<div style="font-size:.65rem;color:var(--muted);padding:2px 0 4px">+${day.blocks.length-3} daha…</div>`;
+    } else {
+      html += `<div style="font-size:.72rem;color:var(--muted);padding:8px 0">Plan yok</div>`;
+    }
+
+    html += `
+        <div class="wday-stats">
+          ${total>0 ? `<div class="wday-stat">✓ ${completed}/${total}</div>` : ''}
+          ${log&&log.studyMin ? `<div class="wday-stat">📚 ${log.studyMin}dk</div>` : ''}
+          ${log&&log.mood ? `<div class="wday-stat">${log.mood.split(' ')[0]}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Add day button
+  html += `<button class="add-day-btn" onclick="openModal('addDayModal')"><div class="plus">＋</div><div>Gün Ekle</div></button>`;
+  grid.innerHTML = html;
+}
+
+function goToDay(ds) {
+  currentDate = fromDateStr(ds);
+  switchView('daily');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MONTHLY VIEW
+═══════════════════════════════════════════════════════════ */
+function renderMonthly() {
+  const grid = document.getElementById('monthGrid');
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  const first = new Date(y, m, 1);
+  const last  = new Date(y, m+1, 0);
+  let html = '';
+
+  DAYS_SH.forEach((d,i) => {
+    const label = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'][i];
+    html += `<div class="month-head-cell">${label}</div>`;
+  });
+
+  let startPad = first.getDay() === 0 ? 6 : first.getDay() - 1;
+  for (let i = 0; i < startPad; i++) html += `<div class="month-cell empty"></div>`;
+
+  for (let day = 1; day <= last.getDate(); day++) {
+    const d = new Date(y, m, day);
+    const ds = toDateStr(d);
+    const dayData = state.days[ds];
+    const today = isToday(ds);
+
+    const examSubj = state.subjects.find(s => s.examDate === ds);
+    const dots = dayData ? dayData.blocks.map(b => {
+      const cat = getCat(b.catId); return `<div class="mc-dot" style="background:${cat.color}"></div>`;
+    }).slice(0,6).join('') : '';
+
+    html += `<div class="month-cell${today?' today':''}${examSubj?' has-exam':''}${dayData?' ':''}">`;
+    if (today) { html += `<div class="mc-date" style="display:flex;align-items:center;justify-content:center;"><span>${day}</span></div>`; }
+    else { html += `<div class="mc-date">${day}</div>`; }
+    if (dots) html += `<div class="mc-dots">${dots}</div>`;
+    if (examSubj) html += `<div class="mc-exam">📝 ${examSubj.name}</div>`;
+    html += `</div>`;
+  }
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.month-cell:not(.empty)').forEach((cell,i) => {
+    const day = i + 1 - startPad;
+    if(day<1||day>last.getDate()) return;
+    const ds = toDateStr(new Date(y,m,day));
+    cell.onclick = () => goToDay(ds);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ANALYTICS BAR
+═══════════════════════════════════════════════════════════ */
+function updateAnalyticsBar() {
+  const bar = document.getElementById('analyticsBar');
+  let dsList = [];
+
+  if (currentView === 'daily') {
+    dsList = [toDateStr(currentDate)];
+  } else if (currentView === 'weekly') {
+    const mon = getWeekStart(currentDate);
+    for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);dsList.push(toDateStr(d));}
+  } else {
+    const y=currentDate.getFullYear(),m=currentDate.getMonth();
+    const last=new Date(y,m+1,0).getDate();
+    for(let d=1;d<=last;d++){dsList.push(toDateStr(new Date(y,m,d)));}
+  }
+
+  const days = dsList.map(ds=>state.days[ds]).filter(Boolean);
+  let totalStudy=0, totalBreak=0, totalTasks=0, totalQ=0, blockCount=0, compCount=0;
+  const catTime = {};
+
+  days.forEach(day => {
+    const log = day.log||{};
+    totalStudy += +(log.studyMin||0);
+    totalBreak += +(log.breakMin||0);
+    totalTasks += +(log.tasksCompleted||0);
+    totalQ     += +(log.questionsSolved||0);
+    day.blocks.forEach(b => {
+      blockCount++;
+      if(b.completed) compCount++;
+      const min = timeToMin(b.startTime,b.endTime);
+      if(!catTime[b.catId]) catTime[b.catId]=0;
+      catTime[b.catId]+=min;
+    });
+  });
+
+  const fmtH = m => m>=60 ? `${(m/60).toFixed(1)}s` : `${m}dk`;
+
+  let stats = [
+    { label: 'Çalışma', value: totalStudy>0 ? fmtH(totalStudy) : '—' },
+    { label: 'Mola',    value: totalBreak>0 ? fmtH(totalBreak) : '—' },
+    { label: 'Tamamlanan Görev', value: totalTasks>0 ? `${totalTasks}` : '—' },
+    { label: 'Çözülen Soru', value: totalQ>0 ? `${totalQ}` : '—' },
+    { label: 'Blok Tamamlama', value: blockCount>0 ? `${compCount}/${blockCount}` : '—', cls: compCount===blockCount&&blockCount>0?'green':'' },
+  ];
+
+  const topCat = Object.entries(catTime).sort((a,b)=>b[1]-a[1])[0];
+  if (topCat) {
+    const cat = getCat(topCat[0]);
+    stats.push({ label: 'Dominant Kategori', value: `${cat.emoji} ${cat.name}` });
+  }
+
+  bar.innerHTML = stats.map(s =>
+    `<div class="astat"><div class="astat-label">${s.label}</div><div class="astat-value${s.cls?' '+s.cls:''}">${s.value}</div></div>`
+  ).join('');
+
+  renderDonut(catTime);
+}
+
+function timeToMin(start,end) {
+  if(!start||!end) return 0;
+  const [sh,sm]=(start||'0:0').split(':').map(Number);
+  const [eh,em]=(end||'0:0').split(':').map(Number);
+  const diff=(eh*60+em)-(sh*60+sm);
+  return diff>0?diff:0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DONUT CHART
+═══════════════════════════════════════════════════════════ */
+function renderDonut(catTime) {
+  const canvas = document.getElementById('donutChart');
+  const legend = document.getElementById('pieLegend');
+  const ctx = canvas.getContext('2d');
+  const W=140, cx=W/2, cy=W/2, r=52, ri=32;
+  ctx.clearRect(0,0,W,W);
+
+  const entries = Object.entries(catTime).filter(([,v])=>v>0);
+  const total = entries.reduce((a,[,v])=>a+v,0);
+
+  if (!total) {
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fillStyle='#f0eff7';ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,ri,0,Math.PI*2);
+    ctx.fillStyle='white';ctx.fill();
+    legend.innerHTML='<div style="font-size:.72rem;color:var(--muted);text-align:center;">Henüz veri yok</div>';
+    return;
+  }
+
+  let angle = -Math.PI/2;
+  entries.forEach(([catId,val]) => {
+    const cat = getCat(catId);
+    const slice = (val/total)*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+slice);
+    ctx.closePath();
+    ctx.fillStyle=cat.color;
+    ctx.fill();
+    angle+=slice;
+  });
+
+  ctx.beginPath();ctx.arc(cx,cy,ri,0,Math.PI*2);
+  ctx.fillStyle='white';ctx.fill();
+
+  legend.innerHTML = entries.map(([catId,val]) => {
+    const cat=getCat(catId);
+    const pct=Math.round(val/total*100);
+    return `<div class="pie-leg-item">
+      <div class="pie-leg-dot" style="background:${cat.color}"></div>
+      <span class="pie-leg-name">${cat.emoji} ${cat.name}</span>
+      <span class="pie-leg-val">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR: COUNTDOWN
+═══════════════════════════════════════════════════════════ */
+function renderCountdown() {
+  const grid = document.getElementById('countdownGrid');
+  grid.innerHTML = state.subjects.map(s => {
+    if (!s.examDate) return '';
+    const d = daysUntil(s.examDate);
+    const cls = d<0?'done':d<=1?'urgent':d<=3?'soon':'';
+    return `<div class="cd-item ${cls}">
+      <div class="cd-name">${s.name}</div>
+      <div class="cd-days ${cls}">${d<0?'✓':d===0?'🔴':d}<span class="cd-unit">${d<0?'bitti':d===0?'bugün':'gün'}</span></div>
+      <div class="cd-date">${fmt(s.examDate)}${s.examTime?' · '+s.examTime:''}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR: SUBJECTS
+═══════════════════════════════════════════════════════════ */
+function renderSubjects() {
+  const list = document.getElementById('subjectList');
+  if (!state.subjects.length) { list.innerHTML='<div class="empty-state" style="padding:10px 0">Ders yok</div>'; return; }
+  list.innerHTML = state.subjects.map(s => `
+    <div class="subject-row" onclick="openEditSubject('${s.id}')">
+      <div class="subj-dot" style="background:${s.color}"></div>
+      <div class="subj-name">${escHtml(s.name)}</div>
+      <div class="subj-exam">${s.examDate ? fmt(s.examDate) : '—'}</div>
+      <span class="subj-edit-icon">✏</span>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR: CATEGORIES
+═══════════════════════════════════════════════════════════ */
+function renderCategories() {
+  const list = document.getElementById('categoryList');
+  list.innerHTML = state.categories.map(c => `
+    <div class="cat-tag" style="color:${c.color};border-color:${c.color}60;background:${c.color}14">
+      ${c.emoji} ${c.name}
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR: PROGRESS
+═══════════════════════════════════════════════════════════ */
+function renderProgress() {
+  const sec = document.getElementById('progressSection');
+  sec.innerHTML = state.subjects.map(s => `
+    <div class="prog-item">
+      <div class="prog-row">
+        <span class="prog-name">${s.name}</span>
+        <span class="prog-pct">${s.progress||0}%</span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" style="width:${s.progress||0}%;background:${s.color}"></div>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GENERAL NOTES
+═══════════════════════════════════════════════════════════ */
+function renderGeneralNotes() {
+  const list = document.getElementById('generalNotesList');
+  if(!state.generalNotes||!state.generalNotes.length){list.innerHTML='';return;}
+  list.innerHTML = state.generalNotes.map((n,i) => `
+    <div class="note-item">${escHtml(n)}
+      <button class="note-del" onclick="deleteGeneralNote(${i})">✕</button>
+    </div>`).join('');
+}
+
+function addGeneralNote() {
+  const inp = document.getElementById('generalNoteInput');
+  const val = inp.value.trim();
+  if(!val) return;
+  if(!state.generalNotes) state.generalNotes=[];
+  state.generalNotes.push(val);
+  inp.value='';
+  saveState();
+  renderGeneralNotes();
+}
+function deleteGeneralNote(i) {
+  state.generalNotes.splice(i,1);
+  saveState();
+  renderGeneralNotes();
+}
+function focusNoteInput(){ document.getElementById('generalNoteInput').focus(); }
+
+/* ═══════════════════════════════════════════════════════════
+   DAY NOTES
+═══════════════════════════════════════════════════════════ */
+function addDayNote(ds) {
+  const inp = document.getElementById(`dayNoteInput_${ds}`);
+  if(!inp) return;
+  const val = inp.value.trim();
+  if(!val||!state.days[ds]) return;
+  if(!state.days[ds].notes) state.days[ds].notes=[];
+  state.days[ds].notes.push(val);
+  inp.value='';
+  saveState();
+  renderView();
+}
+function deleteDayNote(ds,i) {
+  state.days[ds].notes.splice(i,1);
+  saveState();
+  renderView();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LOG
+═══════════════════════════════════════════════════════════ */
+let selectedMood = '';
+
+function selectMood(btn, mood) {
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedMood = mood;
+}
+
+function saveLog(ds) {
+  if(!state.days[ds]) return;
+  const day = state.days[ds];
+  day.log = {
+    studyMin:       +document.getElementById('log_study').value||0,
+    breakMin:       +document.getElementById('log_break').value||0,
+    tasksCompleted: +document.getElementById('log_tasks').value||0,
+    questionsSolved:+document.getElementById('log_questions').value||0,
+    energy:         +document.getElementById('log_energy').value||0,
+    focus:          +document.getElementById('log_focus').value||0,
+    mood:           selectedMood || document.querySelector('.mood-btn.active')?.dataset.mood || '',
+    note:           document.getElementById('log_note').value||'',
+  };
+  saveState();
+  const btn=document.getElementById('saveLogBtn');
+  btn.textContent='Kaydedildi ✓';btn.classList.add('saved');
+  setTimeout(()=>{btn.textContent='Günlük Veriyi Kaydet';btn.classList.remove('saved');},1800);
+  updateAnalyticsBar();
+  showToast('Günlük veri kaydedildi ✓');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BLOCK CRUD
+═══════════════════════════════════════════════════════════ */
+function openAddBlockForDate(ds) {
+  document.getElementById('blockDateTarget').value = ds;
+  document.getElementById('blockEditId').value = '';
+  document.getElementById('blockTitle').value = '';
+  document.getElementById('blockDesc').value = '';
+  document.getElementById('blockStartTime').value = '';
+  document.getElementById('blockEndTime').value = '';
+  document.getElementById('addBlockModalTitle').textContent = 'Blok Ekle';
+  document.getElementById('blockDeleteBtn').classList.add('hidden');
+  document.getElementById('blockLinksContainer').innerHTML = '';
+  fillBlockCategorySelect();
+  fillBlockSubjectSelect(null);
+  openModal('addBlockModal');
+}
+
+function openEditBlock(blockId, ds) {
+  const day = state.days[ds];
+  if(!day) return;
+  const b = day.blocks.find(b=>b.id===blockId);
+  if(!b) return;
+  document.getElementById('blockDateTarget').value = ds;
+  document.getElementById('blockEditId').value = blockId;
+  document.getElementById('blockTitle').value = b.title;
+  document.getElementById('blockDesc').value = b.desc||'';
+  document.getElementById('blockStartTime').value = b.startTime||'';
+  document.getElementById('blockEndTime').value = b.endTime||'';
+  document.getElementById('addBlockModalTitle').textContent = 'Bloğu Düzenle';
+  document.getElementById('blockDeleteBtn').classList.remove('hidden');
+  fillBlockCategorySelect(b.catId);
+  fillBlockSubjectSelect(b.subjectId);
+  document.getElementById('blockTimeSlot').value = b.timeSlot||'sabah';
+  // Load links
+  const container = document.getElementById('blockLinksContainer');
+  container.innerHTML = '';
+  (b.links||[]).forEach(lnk => addLinkRow(lnk.label, lnk.url));
+  openModal('addBlockModal');
+}
+
+function fillBlockCategorySelect(selectedId) {
+  const sel = document.getElementById('blockCategory');
+  sel.innerHTML = state.categories.map(c =>
+    `<option value="${c.id}"${c.id===selectedId?' selected':''}>${c.emoji} ${c.name}</option>`
+  ).join('');
+}
+
+function fillBlockSubjectSelect(selectedId) {
+  const sel = document.getElementById('blockSubject');
+  sel.innerHTML = '<option value="">— Ders seçiniz —</option>' +
+    state.subjects.map(s =>
+      `<option value="${s.id}"${s.id===selectedId?' selected':''}>${s.name}</option>`
+    ).join('');
+}
+
+function saveBlock() {
+  const ds    = document.getElementById('blockDateTarget').value;
+  const editId = document.getElementById('blockEditId').value;
+  const title  = document.getElementById('blockTitle').value.trim();
+  if(!title) { showToast('Başlık gerekli'); return; }
+
+  if(!state.days[ds]) {
+    state.days[ds]={ date:ds, context:'', examToday:null, blocks:[], log:null, notes:[] };
+  }
+  const day = state.days[ds];
+
+  // Collect links
+  const links = [];
+  document.querySelectorAll('#blockLinksContainer .link-row').forEach(row => {
+    const label = row.querySelector('.link-label').value.trim();
+    const url   = row.querySelector('.link-url').value.trim();
+    if(url) links.push({ label: label||url, url });
+  });
+
+  const blockData = {
+    catId:    document.getElementById('blockCategory').value,
+    subjectId:document.getElementById('blockSubject').value||null,
+    title,
+    timeSlot: document.getElementById('blockTimeSlot').value,
+    startTime:document.getElementById('blockStartTime').value,
+    endTime:  document.getElementById('blockEndTime').value,
+    desc:     document.getElementById('blockDesc').value.trim(),
+    links,
+  };
+
+  if(editId) {
+    const idx = day.blocks.findIndex(b=>b.id===editId);
+    if(idx>=0) { day.blocks[idx]={...day.blocks[idx],...blockData}; }
+  } else {
+    day.blocks.push({ id:uid(), completed:false, ...blockData });
+  }
+
+  saveState();
+  closeModal('addBlockModal');
+  renderView();
+  updateAnalyticsBar();
+  showToast(editId?'Blok güncellendi':'Blok eklendi');
+}
+
+function deleteBlock() {
+  const ds    = document.getElementById('blockDateTarget').value;
+  const editId = document.getElementById('blockEditId').value;
+  if(!editId||!state.days[ds]) return;
+  state.days[ds].blocks = state.days[ds].blocks.filter(b=>b.id!==editId);
+  saveState();
+  closeModal('addBlockModal');
+  renderView();
+  updateAnalyticsBar();
+  showToast('Blok silindi');
+}
+
+function deleteBlockConfirm(blockId, ds) {
+  if(!confirm('Bu bloğu silmek istiyor musun?')) return;
+  state.days[ds].blocks = state.days[ds].blocks.filter(b=>b.id!==blockId);
+  saveState();
+  renderView();
+  updateAnalyticsBar();
+}
+
+function toggleComplete(blockId, ds) {
+  const block = state.days[ds]?.blocks.find(b=>b.id===blockId);
+  if(block){ block.completed=!block.completed; saveState(); renderView(); updateAnalyticsBar(); }
+}
+
+function openBlockDetail(blockId, ds) {
+  const day = state.days[ds]; if(!day) return;
+  const b = day.blocks.find(b=>b.id===blockId); if(!b) return;
+  const cat = getCat(b.catId);
+  const subj = b.subjectId ? getSubject(b.subjectId) : null;
+  const linksHtml = (b.links&&b.links.length) ? `
+    <div class="detail-links">
+      ${b.links.map(lnk=>`<a class="detail-link-pill" href="${escHtml(lnk.url)}" target="_blank" rel="noopener">🔗 ${escHtml(lnk.label)}</a>`).join('')}
+    </div>` : '';
+  document.getElementById('detailTitle').textContent = b.title;
+  document.getElementById('detailBody').innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <span style="padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;background:${cat.color}20;color:${cat.color};border:1.5px solid ${cat.color}44">${cat.emoji} ${cat.name}</span>
+      ${subj?`<span style="padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:700;background:${subj.color}20;color:${subj.color};border:1.5px solid ${subj.color}44">${subj.name}</span>`:''}
+      ${b.startTime?`<span style="padding:4px 12px;border-radius:20px;font-size:.72rem;background:#f0f0f0;color:#666">🕐 ${b.startTime}${b.endTime?'–'+b.endTime:''}</span>`:''}
+    </div>
+    ${b.desc?`<p style="font-size:.86rem;line-height:1.7;color:#444;margin-bottom:16px">${escHtml(b.desc)}</p>`:''}
+    ${linksHtml}
+    <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;border-top:1px solid var(--border)">
+      <button class="btn-danger" onclick="closeModal('blockDetailModal');deleteBlockConfirm('${b.id}','${ds}')">Sil</button>
+      <button class="btn-primary" style="width:auto;padding:8px 20px" onclick="closeModal('blockDetailModal');openEditBlock('${b.id}','${ds}')">Düzenle</button>
+    </div>`;
+  openModal('blockDetailModal');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DAY CRUD
+═══════════════════════════════════════════════════════════ */
+function prefillAddDay(ds) {
+  document.getElementById('newDayDate').value = ds;
+  openModal('addDayModal');
+}
+
+function saveDay() {
+  const ds   = document.getElementById('newDayDate').value;
+  const ctx  = document.getElementById('newDayContext').value.trim();
+  const exam = document.getElementById('newDayExam').value.trim();
+  if(!ds){ showToast('Tarih seçiniz'); return; }
+  if(!state.days[ds]){
+    state.days[ds]={ date:ds, context:ctx, examToday:exam||null, blocks:[], log:null, notes:[] };
+  } else {
+    if(ctx) state.days[ds].context=ctx;
+    if(exam) state.days[ds].examToday=exam;
+  }
+  saveState();
+  closeModal('addDayModal');
+  currentDate = fromDateStr(ds);
+  switchView('daily');
+  showToast('Gün eklendi');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SUBJECT CRUD
+═══════════════════════════════════════════════════════════ */
+const PRESET_COLORS = ['#1D3557','#E63946','#457B9D','#52B788','#E07A5F','#9B72CF','#F4A261','#2196F3','#FF6B6B','#4ECDC4','#45B7D1','#96CEB4'];
+
+function buildColorPicker(containerId, selected, onPick) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = PRESET_COLORS.map(c =>
+    `<div class="color-swatch${selected===c?' selected':''}" style="background:${c}" onclick="pickColor('${containerId}','${c}',this)"></div>`
+  ).join('');
+  wrap._selected = selected||PRESET_COLORS[0];
+}
+
+function pickColor(containerId, color, el) {
+  document.querySelectorAll(`#${containerId} .color-swatch`).forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById(containerId)._selected = color;
+}
+
+function getPickedColor(containerId) {
+  return document.getElementById(containerId)._selected || PRESET_COLORS[0];
+}
+
+function openEditSubject(id) {
+  const s = state.subjects.find(s=>s.id===id);
+  if(!s) return;
+  document.getElementById('subjectModalTitle').textContent = 'Dersi Düzenle';
+  document.getElementById('editSubjectId').value = id;
+  document.getElementById('subjectName').value = s.name;
+  document.getElementById('subjectExamDate').value = s.examDate||'';
+  document.getElementById('subjectExamTime').value = s.examTime||'';
+  document.getElementById('subjectProgress').value = s.progress||0;
+  document.getElementById('subjectDeleteBtn').classList.remove('hidden');
+  buildColorPicker('subjectColorPicker', s.color);
+  openModal('addSubjectModal');
+}
+
+function saveSubject() {
+  const editId = document.getElementById('editSubjectId').value;
+  const name  = document.getElementById('subjectName').value.trim();
+  if(!name){ showToast('İsim gerekli'); return; }
+  const data = {
+    name,
+    examDate: document.getElementById('subjectExamDate').value,
+    examTime: document.getElementById('subjectExamTime').value,
+    progress: +document.getElementById('subjectProgress').value||0,
+    color:    getPickedColor('subjectColorPicker'),
+  };
+  if(editId){
+    const idx=state.subjects.findIndex(s=>s.id===editId);
+    if(idx>=0) state.subjects[idx]={...state.subjects[idx],...data};
+  } else {
+    state.subjects.push({id:uid(),...data});
+  }
+  saveState();
+  closeModal('addSubjectModal');
+  renderSubjects();
+  renderCountdown();
+  renderProgress();
+  showToast(editId?'Ders güncellendi':'Ders eklendi');
+}
+
+function deleteSubject() {
+  const id=document.getElementById('editSubjectId').value;
+  if(!id||!confirm('Bu dersi silmek istiyor musun?')) return;
+  state.subjects=state.subjects.filter(s=>s.id!==id);
+  saveState();
+  closeModal('addSubjectModal');
+  renderSubjects();
+  renderCountdown();
+  renderProgress();
+  showToast('Ders silindi');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CATEGORY CRUD
+═══════════════════════════════════════════════════════════ */
+function saveCategory() {
+  const name  = document.getElementById('catName').value.trim();
+  const emoji = document.getElementById('catEmoji').value.trim()||'📌';
+  if(!name){ showToast('İsim gerekli'); return; }
+  state.categories.push({ id:uid(), name, color:getPickedColor('catColorPicker'), emoji });
+  saveState();
+  closeModal('addCategoryModal');
+  renderCategories();
+  showToast('Kategori eklendi');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL SYSTEM
+═══════════════════════════════════════════════════════════ */
+function openModal(id) {
+  if(id==='addSubjectModal'){
+    document.getElementById('subjectModalTitle').textContent='Ders Ekle';
+    document.getElementById('editSubjectId').value='';
+    document.getElementById('subjectName').value='';
+    document.getElementById('subjectExamDate').value='';
+    document.getElementById('subjectExamTime').value='';
+    document.getElementById('subjectProgress').value='';
+    document.getElementById('subjectDeleteBtn').classList.add('hidden');
+    buildColorPicker('subjectColorPicker', PRESET_COLORS[0]);
+  }
+  if(id==='addCategoryModal'){
+    document.getElementById('catName').value='';
+    document.getElementById('catEmoji').value='';
+    buildColorPicker('catColorPicker', PRESET_COLORS[3]);
+  }
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if(e.target===ov) ov.classList.remove('open'); });
+});
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR TOGGLE (mobile)
+═══════════════════════════════════════════════════════════ */
+function toggleSidebar() {
+  const sb = document.getElementById('sidebarCol');
+  sb.classList.toggle('mobile-open');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CLOCK
+═══════════════════════════════════════════════════════════ */
+function updateClock() {
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const el=document.getElementById('liveClock');
+  el.textContent=`${DAYS_SH[now.getDay()]} ${now.getDate()} ${MONTHS_SH[now.getMonth()]} · ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  el.classList.add('visible');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ESCAPE HTML
+═══════════════════════════════════════════════════════════ */
+function escHtml(s) {
+  if(!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LINK ROWS (Block Modal)
+═══════════════════════════════════════════════════════════ */
+function addLinkRow(label='', url='') {
+  const container = document.getElementById('blockLinksContainer');
+  const row = document.createElement('div');
+  row.className = 'link-row';
+  row.innerHTML = `
+    <input class="link-label" type="text" placeholder="İsim (ör: Ders Notu)" value="${escHtml(label)}" style="flex:1;">
+    <input class="link-url url-input" type="url" placeholder="https://..." value="${escHtml(url)}" style="flex:2;">
+    <button class="link-row-del" onclick="this.parentElement.remove()" title="Sil">✕</button>`;
+  container.appendChild(row);
+  row.querySelector('.link-url').focus();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EXPORT / IMPORT
+═══════════════════════════════════════════════════════════ */
+function exportData() {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const now  = new Date();
+  const pad  = n => String(n).padStart(2,'0');
+  const fname = `studycircus_${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}.json`;
+  const a = document.createElement('a');
+  a.href = url; a.download = fname;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('📤 Veri indirildi: ' + fname);
+}
+
+let importParsed = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const fi = document.getElementById('importFileInput');
+  if(fi) fi.addEventListener('change', handleImportFile);
+});
+
+function handleImportFile(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      // Basic validation
+      if(!parsed.subjects || !parsed.days || !parsed.categories) throw new Error('Geçersiz format');
+      importParsed = parsed;
+      const dayCount = Object.keys(parsed.days).length;
+      const blockCount = Object.values(parsed.days).reduce((a,d)=>a+(d.blocks?.length||0),0);
+      document.getElementById('importPreview').style.display = 'block';
+      document.getElementById('importPreview').innerHTML =
+        `✅ <strong>Dosya geçerli.</strong><br>
+        📅 ${dayCount} gün &nbsp;·&nbsp; 📦 ${blockCount} blok &nbsp;·&nbsp; 📚 ${parsed.subjects.length} ders<br>
+        <span style="color:var(--red);font-size:.72rem;">⚠️ Mevcut verinin üzerine yazılacak!</span>`;
+      const btn = document.getElementById('importConfirmBtn');
+      btn.style.opacity = '1'; btn.style.pointerEvents = 'auto';
+    } catch(err) {
+      importParsed = null;
+      document.getElementById('importPreview').style.display = 'block';
+      document.getElementById('importPreview').innerHTML = `❌ <strong>Hata:</strong> ${err.message}`;
+      const btn = document.getElementById('importConfirmBtn');
+      btn.style.opacity = '.4'; btn.style.pointerEvents = 'none';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function importData() {
+  if(!importParsed) return;
+  if(!confirm('Mevcut tüm veri silinecek ve içe aktarılan veriyle değiştirilecek. Emin misin?')) return;
+  state = importParsed;
+  saveState();
+  closeModal('importModal');
+  importParsed = null;
+  document.getElementById('importFileInput').value = '';
+  document.getElementById('importPreview').style.display = 'none';
+  // Re-render everything
+  renderCountdown();
+  renderSubjects();
+  renderCategories();
+  renderProgress();
+  renderGeneralNotes();
+  renderView();
+  updateAnalyticsBar();
+  showToast('📥 Veri başarıyla içe aktarıldı!');
+}
+
+
+loadState();
+
+currentDate = new Date();
+
+renderCountdown();
+renderSubjects();
+renderCategories();
+renderProgress();
+renderGeneralNotes();
+
+switchView('weekly');
+
+updateClock();
+setInterval(updateClock, 1000);
+setInterval(()=>{renderCountdown();}, 60000);
+</script>
+</body>
+</html>
