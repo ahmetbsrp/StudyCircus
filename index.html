@@ -1379,6 +1379,25 @@ function daysUntil(ds) {
 function getCat(id)     { return state.categories.find(c=>c.id===id) || {name:'—',color:'#ccc',emoji:''}; }
 function getSubject(id) { return state.subjects.find(s=>s.id===id); }
 
+function sortBlocksByTime(blocks) {
+  if (!blocks || blocks.length === 0) return blocks;
+  
+  return [...blocks].sort((a, b) => {
+    const aStart = a.startTime || '';
+    const bStart = b.startTime || '';
+    
+    // First, sort by start time (early to late)
+    if (aStart !== bStart) {
+      return aStart.localeCompare(bStart);
+    }
+    
+    // If start times are the same, sort by end time (earlier end = higher priority / comes first)
+    const aEnd = a.endTime || '';
+    const bEnd = b.endTime || '';
+    return aEnd.localeCompare(bEnd);
+  });
+}
+
 function catStyle(catId) {
   const c = getCat(catId);
   return { color: c.color, bg: c.color+'18', border: c.color+'40' };
@@ -1548,7 +1567,7 @@ function renderDaily() {
   if (!day.blocks || day.blocks.length === 0) {
     html += `<div class="empty-state" style="padding:24px 0;"><div>Henüz blok yok.</div></div>`;
   } else {
-    day.blocks.forEach(b => { html += renderBlockItem(b, ds); });
+    sortBlocksByTime(day.blocks).forEach(b => { html += renderBlockItem(b, ds); });
   }
 
   // Day-level notes
@@ -1641,7 +1660,7 @@ function renderWeekly() {
         ${day&&day.examToday ? `<div class="wday-exam-pill">🔴 ${day.examToday}</div>` : ''}`;
 
     if (day && day.blocks.length > 0) {
-      day.blocks.slice(0,3).forEach(b => {
+      sortBlocksByTime(day.blocks).slice(0,3).forEach(b => {
         const cat = getCat(b.catId);
         html += `
           <div class="wday-block${b.completed?' completed':''}" style="background:${cat.color}14;border-color:${cat.color}30">
@@ -1875,8 +1894,9 @@ function renderSubjects() {
 function renderCategories() {
   const list = document.getElementById('categoryList');
   list.innerHTML = state.categories.map(c => `
-    <div class="cat-tag" style="color:${c.color};border-color:${c.color}60;background:${c.color}14">
-      ${c.emoji} ${c.name}
+    <div class="cat-tag" style="color:${c.color};border-color:${c.color}60;background:${c.color}14" title="${c.name}">
+      <span>${c.emoji} ${c.name}</span>
+      <button class="cat-delete-btn" onclick="deleteCategory('${c.id}')" title="Sil">✕</button>
     </div>`).join('');
 }
 
@@ -2240,6 +2260,35 @@ function saveCategory() {
   closeModal('addCategoryModal');
   renderCategories();
   showToast('Kategori eklendi');
+  // Reset form
+  document.getElementById('catName').value='';
+  document.getElementById('catEmoji').value='';
+}
+
+function deleteCategory(id) {
+  const cat = state.categories.find(c => c.id === id);
+  if (!cat) return;
+  
+  // Check if category is used in any blocks
+  let isUsed = false;
+  for (const day of Object.values(state.days)) {
+    if (day.blocks && day.blocks.some(b => b.catId === id)) {
+      isUsed = true;
+      break;
+    }
+  }
+  
+  if (isUsed) {
+    showToast('Bu kategoride blok var, silemezsiniz');
+    return;
+  }
+  
+  if (confirm(`"${cat.name}" kategorisini silmek istediğinize emin misiniz?`)) {
+    state.categories = state.categories.filter(c => c.id !== id);
+    saveState();
+    renderCategories();
+    showToast('Kategori silindi');
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2423,15 +2472,36 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
         console.log('Service Worker registered successfully:', registration);
+        
+        // Check for updates on every page load
+        registration.update();
+        
+        // Listen for service worker updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New version is ready, ask user to update
+              console.log('New Service Worker version available');
+              // Optional: show a notification to user
+              if (confirm('Site güncellemesi mevcut. Yeniden yüklensin mi?')) {
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+                window.location.reload();
+              }
+            }
+          });
+        });
       })
       .catch(error => {
         console.log('Service Worker registration failed:', error);
       });
   });
   
-  // Check for service worker updates
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    console.log('Service Worker updated');
+  // Check for service worker updates on visibility change
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CHECK_UPDATE' });
+    }
   });
 }
 </script>

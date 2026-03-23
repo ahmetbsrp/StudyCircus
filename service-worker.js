@@ -16,7 +16,7 @@ self.addEventListener('install', event => {
       });
     })
   );
-  self.skipWaiting();
+  // Don't auto-update; wait for page to check for updates
 });
 
 // Activate event - clean up old caches
@@ -112,5 +112,9 @@ self.addEventListener('fetch', event => {
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'CHECK_UPDATE') {
+    // Update check will happen automatically via registration.update()
+    console.log('Update check requested by client');
   }
 });
