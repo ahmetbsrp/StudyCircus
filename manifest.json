@@ -2,58 +2,34 @@
   "name": "StudyCircus - öğrenme platformu",
   "short_name": "StudyCircus",
   "description": "Renkli ve etkileşimli öğrenme yönetim platformu. Dersleri takip et, çalış ve başarı sahibi ol!",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#FDFCDC",
   "theme_color": "#1D3557",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231D3557' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-family='Playfair Display' font-weight='900' fill='%23E63946' text-anchor='middle' dominant-baseline='central'>🎪</text></svg>",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%231D3557' width='512' height='512'/><text x='50%' y='50%' font-size='320' font-family='Playfair Display' font-weight='900' fill='%23E63946' text-anchor='middle' dominant-baseline='central'>🎪</text></svg>",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
   "categories": ["education", "productivity"],
-  "screenshots": [
-    {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%231D3557' width='540' height='720'/><text x='270' y='360' font-size='200' font-family='Playfair Display' font-weight='900' fill='%23FDFCDC' text-anchor='middle' dominant-baseline='central'>StudyCircus</text></svg>",
-      "sizes": "540x720",
-      "type": "image/svg+xml"
-    }
-  ],
+  "prefer_related_applications": false,
   "shortcuts": [
     {
       "name": "Bugünkü Gün",
       "short_name": "Bugün",
       "description": "Bugünün görünümüne git",
-      "url": "/?view=daily",
-      "icons": [
-        {
-          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%231D3557' width='96' height='96'/><text x='48' y='48' font-size='60' font-family='system-ui' font-weight='bold' fill='%23FDFCDC' text-anchor='middle' dominant-baseline='central'>📅</text></svg>",
-          "sizes": "96x96",
-          "type": "image/svg+xml"
-        }
-      ]
+      "url": "./index.html?view=daily"
     }
-  ],
-  "prefer_related_applications": false,
-  "share_target": {
-    "action": "/share",
-    "method": "POST",
-    "enctype": "multipart/form-data",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  }
+  ]
 }

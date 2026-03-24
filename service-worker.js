@@ -1,120 +1,86 @@
-const CACHE_NAME = 'studycircus-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
+/* StudyCircus Service Worker v2.0 */
+const CACHE_NAME = 'studycircus-v2.0';
+const STATIC_ASSETS = [
+  './index.html',
+  './manifest.json',
+  'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap'
 ];
 
-// Install event - cache resources
+// Install: cache static assets
 self.addEventListener('install', event => {
+  console.log('[SW] Installing...');
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache).catch(err => {
-        console.log('Cache addAll error:', err);
-        // Continue even if some resources fail to cache
-        return Promise.resolve();
-      });
-    })
-  );
-  // Don't auto-update; wait for page to check for updates
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
+      // Cache what we can, ignore failures
+      return Promise.allSettled(
+        STATIC_ASSETS.map(url => cache.add(url).catch(e => console.warn('[SW] Failed to cache:', url, e)))
       );
-    })
+    }).then(() => self.skipWaiting())
   );
-  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Activate: clean up old caches, claim clients
+self.addEventListener('activate', event => {
+  console.log('[SW] Activating...');
+  event.waitUntil(
+    caches.keys().then(names =>
+      Promise.all(names.filter(n => n !== CACHE_NAME).map(n => caches.delete(n)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Fetch: network-first for HTML/JS, cache-first for fonts/static
 self.addEventListener('fetch', event => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') {
+  const { request } = event;
+
+  // Skip non-GET and cross-origin except fonts
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  const isFont = url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('fonts.gstatic.com');
+  const isGist = url.hostname.includes('githubusercontent.com');
+  const isLocal = url.origin === self.location.origin || request.url.startsWith('./');
+
+  // Gist data: always network, no cache (we add timestamp ourselves)
+  if (isGist) {
+    event.respondWith(fetch(request).catch(() => new Response('{"error":"offline"}', { headers: { 'Content-Type': 'application/json' } })));
     return;
   }
 
-  // Handle Google Fonts which may be external
-  if (event.request.url.includes('fonts.googleapis.com') || 
-      event.request.url.includes('fonts.gstatic.com')) {
+  // Fonts: cache-first (long TTL fine for fonts)
+  if (isFont) {
     event.respondWith(
-      caches.match(event.request).then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request).then(response => {
-          // Only cache successful responses
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-          return response;
-        }).catch(() => {
-          // Return a basic offline response if fonts fail
-          return new Response('Offline - Font unavailable', {
-            status: 503,
-            statusText: 'Service Unavailable'
-          });
-        });
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(resp => {
+          const clone = resp.clone();
+          caches.open(CACHE_NAME).then(c => c.put(request, clone));
+          return resp;
+        }).catch(() => new Response('', { status: 503 }));
       })
     );
     return;
   }
 
-  // For all other requests, try cache first, then network
+  // HTML/JS/CSS: network-first, fallback to cache
+  if (isLocal) {
+    event.respondWith(
+      fetch(request).then(resp => {
+        const clone = resp.clone();
+        caches.open(CACHE_NAME).then(c => c.put(request, clone));
+        return resp;
+      }).catch(() => caches.match(request).then(cached => cached || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Default: try cache then network
   event.respondWith(
-    caches.match(event.request).then(response => {
-      // Cache hit - return response
-      if (response) {
-        return response;
-      }
-
-      return fetch(event.request).then(response => {
-        // Check if we received a valid response
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
-        }
-
-        // Clone the response
-        const responseToCache = response.clone();
-
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-
-        return response;
-      }).catch(() => {
-        // Offline fallback
-        if (event.request.destination === 'document') {
-          return caches.match('/index.html');
-        }
-        return new Response('Offline', {
-          status: 503,
-          statusText: 'Service Unavailable'
-        });
-      });
-    })
+    caches.match(request).then(cached => cached || fetch(request))
   );
 });
 
-// Handle messages from the client
+// Message handling
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  if (event.data && event.data.type === 'CHECK_UPDATE') {
-    // Update check will happen automatically via registration.update()
-    console.log('Update check requested by client');
-  }
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
 });
