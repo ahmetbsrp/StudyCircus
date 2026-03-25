@@ -1,7 +1,7 @@
 {
-  "name": "StudyCircus - öğrenme platformu",
+  "name": "StudyCircus - Lecture Planner and Study Tracker",
   "short_name": "StudyCircus",
-  "description": "Renkli ve etkileşimli öğrenme yönetim platformu. Dersleri takip et, çalış ve başarı sahibi ol!",
+  "description": "Learn, plan, and track your studies with StudyCircus - the ultimate study companion app.",
   "start_url": ".",
   "scope": "./",
   "display": "standalone",
@@ -10,14 +10,14 @@
   "theme_color": "#1D3557",
   "icons": [
     {
-      "src": "icon-192.png",
-      "sizes": "192x192",
+      "src": "./images/icon.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
-      "sizes": "512x512",
+      "src": "./images/icon.png",
+      "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any maskable"
     }
@@ -26,9 +26,9 @@
   "prefer_related_applications": false,
   "shortcuts": [
     {
-      "name": "Bugünkü Gün",
-      "short_name": "Bugün",
-      "description": "Bugünün görünümüne git",
+      "name": "Today",
+      "short_name": "Today",
+      "description": "Go to today's view",
       "url": "./index.html?view=daily"
     }
   ]

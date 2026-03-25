@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>StudyCircus 🎪</title>
 
-<meta name="description" content="Renkli ve etkileşimli öğrenme yönetim platformu. Dersleri takip et, çalış ve başarı sahibi ol!">
+<meta name="description" content="StudyCircus is a colorful and interactive study planner and tracker app. Organize your lectures, plan your study sessions, and track your progress with ease. Whether you're a student looking to stay on top of your coursework or someone who loves learning, StudyCircus has got you covered!">
 <meta name="theme-color" content="#1D3557">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1072,9 +1072,14 @@ canvas.donut{display:block;margin:0 auto;}
       <div class="modal-title" id="addBlockModalTitle">Blok Ekle</div>
       <button class="modal-close" onclick="closeModal('addBlockModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="blockDateTarget">
+  <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tarih</label>
+        <input class="form-input" id="blockDateTarget" type="date">
+      </div>
+      <input type="hidden" id="blockOriginalDate">
       <input type="hidden" id="blockEditId">
+      
       <div class="form-group">
         <label class="form-label">Başlık</label>
         <input class="form-input" id="blockTitle" placeholder="Calculus: İntegral Teknikleri">
@@ -1121,9 +1126,11 @@ canvas.donut{display:block;margin:0 auto;}
         <div id="blockLinksContainer"></div>
         <button type="button" class="add-link-btn" onclick="addLinkRow()">＋ Link Ekle</button>
       </div>
+      
       <div class="btn-row">
         <button class="btn-danger hidden" id="blockDeleteBtn" onclick="deleteBlock()">Sil</button>
-        <button class="btn-primary" onclick="saveBlock()">Kaydet</button>
+        <button class="btn-primary hidden" id="blockCopyBtn" style="background:var(--blue); width:auto; padding:10px 16px;" onclick="saveBlock(true)">Kopyala</button>
+        <button class="btn-primary" style="flex:1;" onclick="saveBlock(false)">Kaydet</button>
       </div>
     </div>
   </div>
@@ -2002,14 +2009,19 @@ function openAddBlockForDate(ds){
 function openEditBlock(blockId,ds){
   const day=state.days[ds];if(!day)return;
   const b=day.blocks.find(b=>b.id===blockId);if(!b)return;
+  
   document.getElementById('blockDateTarget').value=ds;
+  document.getElementById('blockOriginalDate').value=ds; // Eski tarihi hafızada tutuyoruz
   document.getElementById('blockEditId').value=blockId;
   document.getElementById('blockTitle').value=b.title;
   document.getElementById('blockDesc').value=b.desc||'';
   document.getElementById('blockStartTime').value=b.startTime||'';
   document.getElementById('blockEndTime').value=b.endTime||'';
   document.getElementById('addBlockModalTitle').textContent='Bloğu Düzenle';
+  
   document.getElementById('blockDeleteBtn').classList.remove('hidden');
+  document.getElementById('blockCopyBtn').classList.remove('hidden'); // Kopyala butonunu göster
+  
   fillBlockCategorySelect(b.catId);fillBlockSubjectSelect(b.subjectId);
   document.getElementById('blockTimeSlot').value=b.timeSlot||'sabah';
   const container=document.getElementById('blockLinksContainer');container.innerHTML='';
@@ -2027,37 +2039,58 @@ function fillBlockSubjectSelect(selectedId){
     state.subjects.map(s=>`<option value="${s.id}"${s.id===selectedId?' selected':''}>${s.name}</option>`).join('');
 }
 
-function saveBlock(){
-  const ds=document.getElementById('blockDateTarget').value;
-  const editId=document.getElementById('blockEditId').value;
-  const title=document.getElementById('blockTitle').value.trim();
-  if(!title){showToast('Başlık gerekli');return;}
-  if(!state.days[ds]) state.days[ds]={date:ds,context:'',examToday:null,blocks:[],log:null,notes:[]};
-  const day=state.days[ds];
+function saveBlock(isCopy = false) {
+  const newDs = document.getElementById('blockDateTarget').value;
+  const oldDs = document.getElementById('blockOriginalDate').value;
+  const editId = document.getElementById('blockEditId').value;
+  const title = document.getElementById('blockTitle').value.trim();
+  
+  if(!title || !newDs) { showToast('Başlık ve Tarih gerekli'); return; }
+  
+  if(!state.days[newDs]) state.days[newDs]={date:newDs,context:'',examToday:null,blocks:[],log:null,notes:[]};
+  const targetDay = state.days[newDs];
+  
   const links=[];
   document.querySelectorAll('#blockLinksContainer .link-row').forEach(row=>{
     const label=row.querySelector('.link-label').value.trim();
     const url=row.querySelector('.link-url').value.trim();
     if(url) links.push({label:label||url,url});
   });
-  const blockData={
+  
+  const blockData = {
     catId:document.getElementById('blockCategory').value,
     subjectId:document.getElementById('blockSubject').value||null,
-    title,timeSlot:document.getElementById('blockTimeSlot').value,
+    title, timeSlot:document.getElementById('blockTimeSlot').value,
     startTime:document.getElementById('blockStartTime').value,
     endTime:document.getElementById('blockEndTime').value,
     desc:document.getElementById('blockDesc').value.trim(),links,
   };
-  if(editId){
-    const idx=day.blocks.findIndex(b=>b.id===editId);
-    if(idx>=0)day.blocks[idx]={...day.blocks[idx],...blockData};
+  
+  if(editId && !isCopy){
+    // DÜZENLEME veya TAŞIMA İŞLEMİ
+    if (newDs !== oldDs) {
+      // Başka güne taşınıyor: Eskiden sil, yeniye ekle
+      const oldBlock = state.days[oldDs].blocks.find(b => b.id === editId);
+      state.days[oldDs].blocks = state.days[oldDs].blocks.filter(b => b.id !== editId);
+      targetDay.blocks.push({ ...oldBlock, ...blockData });
+    } else {
+      // Aynı günde güncelleniyor
+      const idx = targetDay.blocks.findIndex(b=>b.id===editId);
+      if(idx>=0) targetDay.blocks[idx] = { ...targetDay.blocks[idx], ...blockData };
+    }
   } else {
-    day.blocks.push({id:uid(),completed:false,...blockData});
+    // YENİ EKLEME veya KOPYALAMA İŞLEMİ (isCopy = true ise yeni bir ID ile kaydedilir)
+    targetDay.blocks.push({id:uid(), completed:false, ...blockData});
   }
-  saveStateAndSync();closeModal('addBlockModal');renderView();updateAnalyticsBar();
-  showToast(editId?'Blok güncellendi':'Blok eklendi');
+  
+  saveStateAndSync(); closeModal('addBlockModal'); renderView(); updateAnalyticsBar();
+  
+  // İşleme göre uygun mesajı göster
+  if (isCopy) showToast('Blok kopyalandı');
+  else if (editId && newDs !== oldDs) showToast('Blok taşındı');
+  else if (editId) showToast('Blok güncellendi');
+  else showToast('Blok eklendi');
 }
-
 function deleteBlock(){
   const ds=document.getElementById('blockDateTarget').value;
   const editId=document.getElementById('blockEditId').value;
