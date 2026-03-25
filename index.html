@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="StudyCircus">
 <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -1365,7 +1366,6 @@ async function saveToCloud() {
     
     updateSyncBadge('synced');
     showToast(`⬆️ Kaydedildi! ID: ${gistConfig.accountId}`);
-    openGistPanel(); 
     setTimeout(()=>updateSyncBadge('idle'), 3000);
   } catch(e) {
     updateSyncBadge('error');
@@ -1396,7 +1396,6 @@ async function loadFromCloud(inputId) {
     renderAll();
     updateSyncBadge('synced');
     showToast('⬇️ Veri yüklendi.');
-    openGistPanel(); 
     setTimeout(()=>updateSyncBadge('idle'), 3000);
   } catch(e) {
     updateSyncBadge('error');

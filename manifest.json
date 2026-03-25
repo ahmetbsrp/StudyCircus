@@ -2,7 +2,7 @@
   "name": "StudyCircus - öğrenme platformu",
   "short_name": "StudyCircus",
   "description": "Renkli ve etkileşimli öğrenme yönetim platformu. Dersleri takip et, çalış ve başarı sahibi ol!",
-  "start_url": "./index.html",
+  "start_url": ".",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
