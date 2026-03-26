@@ -933,6 +933,36 @@ canvas.donut{display:block;margin:0 auto;}
   text-decoration:none;transition:all 0.15s;min-height:38px;
 }
 .detail-link-pill:hover,.detail-link-pill:active{background:var(--navy);color:white;}
+
+/* ═══════════════════════════════════════════════════════════
+   YENİ EKLENENLER: Haftalık Blok, Paneller ve Yatay Ekran
+═══════════════════════════════════════════════════════════ */
+/* Haftalık görünümde tamamlanan bloklar */
+.wday-block.completed { opacity: 0.55; text-decoration: line-through; }
+
+/* Panel Daralt/Genişlet Tasarımı */
+.sb-section { flex-shrink: 0; transition: order 0.3s ease; }
+.sb-head { cursor: pointer; user-select: none; }
+.sb-head-title { display: flex; align-items: center; gap: 8px; }
+.sb-toggle-icon { font-size: 0.75rem; transition: transform 0.2s ease; opacity: 0.8; }
+.sb-section.collapsed .sb-toggle-icon { transform: rotate(-90deg); }
+.sb-section.collapsed .sb-body { display: none; }
+
+/* Panel Yönetici Modal Öğeleri */
+.panel-mgr-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--cream); border: 1.5px solid var(--border); margin-bottom: 8px; border-radius: 12px; transition: all 0.2s; }
+.panel-mgr-item.hidden-panel { opacity: 0.5; background: transparent; border-style: dashed; }
+.panel-actions { display: flex; gap: 6px; }
+.panel-action-btn { width: 32px; height: 32px; background: white; border: 1.5px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.15s; touch-action: manipulation; }
+.panel-action-btn:hover:not(:disabled) { background: var(--navy); color: white; border-color: var(--navy); }
+.panel-action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Yatay (Landscape) Mobil/Tablet Cihaz İyileştirmesi */
+@media (max-width: 900px) and (orientation: landscape) {
+  .sidebar-col.mobile-open { padding-bottom: 80px; }
+  .mobile-nav { padding-top: 4px; padding-bottom: calc(4px + var(--safe-bottom)); }
+  .mnav-btn { min-height: 44px; flex-direction: row; gap: 8px; }
+  .mnav-btn .icon { font-size: 1.1rem; }
+}
 </style>
 </head>
 <body>
@@ -953,7 +983,7 @@ canvas.donut{display:block;margin:0 auto;}
       <span id="syncLabel">Sync</span>
     </div>
     <button class="icon-btn" onclick="openModal('addDayModal')" title="Gün ekle">＋</button>
-    <button class="icon-btn" onclick="toggleSidebar()" title="Panel" id="sidebarToggleBtn">☰</button>
+    <button class="icon-btn" onclick="openManagePanelsModal()" title="Panelleri Yönet" id="panelManageBtn">☰</button>
   </div>
 </header>
 
@@ -979,36 +1009,45 @@ canvas.donut{display:block;margin:0 auto;}
   </div>
 
   <aside class="sidebar-col" id="sidebarCol">
-    <div class="sb-section">
-      <div class="sb-head">⏳ Geri Sayım</div>
+    <div class="sb-section" id="panel-countdown">
+      <div class="sb-head" onclick="togglePanel('panel-countdown')">
+        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> ⏳ Geri Sayım</div>
+      </div>
       <div class="sb-body"><div class="cd-grid" id="countdownGrid"></div></div>
     </div>
-    <div class="sb-section">
-      <div class="sb-head">📚 Dersler
-        <button class="sb-add-btn" onclick="openModal('addSubjectModal')">+ Ekle</button>
+    <div class="sb-section" id="panel-subjects">
+      <div class="sb-head" onclick="togglePanel('panel-subjects')">
+        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📚 Dersler</div>
+        <button class="sb-add-btn" onclick="event.stopPropagation(); openModal('addSubjectModal')">+ Ekle</button>
       </div>
       <div class="sb-body"><div class="subject-list" id="subjectList"></div></div>
     </div>
-    <div class="sb-section">
-      <div class="sb-head">🏷 Kategoriler
-        <button class="sb-add-btn" onclick="openModal('addCategoryModal')">+ Ekle</button>
+    <div class="sb-section" id="panel-categories">
+      <div class="sb-head" onclick="togglePanel('panel-categories')">
+        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 🏷 Kategoriler</div>
+        <button class="sb-add-btn" onclick="event.stopPropagation(); openModal('addCategoryModal')">+ Ekle</button>
       </div>
       <div class="sb-body"><div class="cat-grid" id="categoryList"></div></div>
     </div>
-    <div class="sb-section">
-      <div class="sb-head">📊 Analitik</div>
+    <div class="sb-section" id="panel-analytics">
+      <div class="sb-head" onclick="togglePanel('panel-analytics')">
+        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📊 Analitik</div>
+      </div>
       <div class="sb-body">
         <canvas class="donut" id="donutChart" width="140" height="140"></canvas>
         <div class="pie-legend" id="pieLegend"></div>
       </div>
     </div>
-    <div class="sb-section">
-      <div class="sb-head">📈 Hazırlık</div>
+    <div class="sb-section" id="panel-progress">
+      <div class="sb-head" onclick="togglePanel('panel-progress')">
+        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📈 Hazırlık</div>
+      </div>
       <div class="sb-body" id="progressSection"></div>
     </div>
-    <div class="sb-section">
-      <div class="sb-head">📝 Genel Notlar
-        <button class="sb-add-btn" onclick="focusNoteInput()">+ Not</button>
+    <div class="sb-section" id="panel-notes">
+      <div class="sb-head" onclick="togglePanel('panel-notes')">
+        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📝 Genel Notlar</div>
+        <button class="sb-add-btn" onclick="event.stopPropagation(); focusNoteInput()">+ Not</button>
       </div>
       <div class="sb-body">
         <div id="generalNotesList"></div>
@@ -1019,6 +1058,8 @@ canvas.donut{display:block;margin:0 auto;}
       </div>
     </div>
   </aside>
+
+
 </div>
 
 <nav class="mobile-nav">
@@ -1232,6 +1273,19 @@ canvas.donut{display:block;margin:0 auto;}
   </div>
 </div>
 
+
+<div class="overlay" id="managePanelsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">☰ Manage Panels</div>
+      <button class="modal-close" onclick="closeModal('managePanelsModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:0.75rem; color:var(--muted); margin-bottom:16px;">You can reorder panels or toggle their visibility.</div>
+      <div id="panelManagerList"></div>
+    </div>
+  </div>
+</div>
 <script>
 /* ═══════════════════════════════════════════════════════════
    STATE & CONFIG
@@ -1286,7 +1340,17 @@ function buildDefaultState() {
       log:null,notes:[],
     };
   });
-  return { subjects, categories, days, generalNotes:['Her oturumda formül kağıdını yanında tut.'] };
+
+// buildDefaultState() içinde return etmeden hemen önce şunu ekle:
+  const panelConfig = [
+    { id: 'panel-countdown', title: '⏳ Countdown', visible: true, collapsed: false },
+    { id: 'panel-subjects', title: '📚 Subjects', visible: true, collapsed: false },
+    { id: 'panel-categories', title: '🏷 Categories', visible: true, collapsed: false },
+    { id: 'panel-analytics', title: '📊 Analytics', visible: true, collapsed: false },
+    { id: 'panel-progress', title: '📈 Progress', visible: true, collapsed: false },
+    { id: 'panel-notes', title: '📝 General Notes', visible: true, collapsed: false }
+  ];
+  return { subjects, categories, days, generalNotes:['Keep your study materials handy.'], panelConfig };
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1295,7 +1359,15 @@ function buildDefaultState() {
 function loadState() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) { state = JSON.parse(saved); return; }
+    if (saved) { 
+      state = JSON.parse(saved); 
+      // Eski kullanıcılara panelleri entegre et
+      if (!state.panelConfig) {
+         state.panelConfig = buildDefaultState().panelConfig;
+         saveState();
+      }
+      return; 
+    }
   } catch(e) {}
   state = buildDefaultState();
   saveState();
@@ -1483,6 +1555,103 @@ function closeGistPanel() {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   PANEL YÖNETİMİ VE ACCORDION (Show More / Less)
+═══════════════════════════════════════════════════════════ */
+
+// GÜVENLİK KİLİDİ: Eski veri veya bulut verisi gelirse panel ayarlarının bozulmasını/çökmesini engeller.
+function ensurePanelConfig() {
+  let updated = false;
+  if (!state.panelConfig || !Array.isArray(state.panelConfig)) {
+    state.panelConfig = buildDefaultState().panelConfig;
+    updated = true;
+  } else {
+    // Eğer yeni bir panel eklendiyse (örn: gelecekte eklersen) eksik olanları tamamlar.
+    const defaults = buildDefaultState().panelConfig;
+    defaults.forEach(dp => {
+      if (!state.panelConfig.find(p => p.id === dp.id)) {
+        state.panelConfig.push(dp);
+        updated = true;
+      }
+    });
+  }
+  if (updated) saveState();
+}
+
+function renderPanelsConfig() {
+  ensurePanelConfig(); // Çökmeye karşı kontrol
+  state.panelConfig.forEach((p, index) => {
+    const el = document.getElementById(p.id);
+    if(!el) return;
+    
+    el.style.order = index; // Flex order ile sıralamayı belirler
+    el.style.display = p.visible ? 'block' : 'none'; // Göster/Gizle
+    
+    if(p.collapsed) el.classList.add('collapsed');
+    else el.classList.remove('collapsed');
+  });
+}
+
+function togglePanel(id) {
+  ensurePanelConfig(); // Çökmeye karşı kontrol
+  const isMobile = window.innerWidth <= 900;
+  const panel = state.panelConfig.find(p => p.id === id);
+  if(!panel) return;
+  
+  const willBeCollapsed = !panel.collapsed;
+  
+  // Mobilse ve bir paneli 'genişletiyorsak' (Accordion mantığı) diğerlerini kapat
+  if (isMobile && !willBeCollapsed) {
+    state.panelConfig.forEach(p => {
+      if (p.id !== id) p.collapsed = true;
+    });
+  }
+  
+  panel.collapsed = willBeCollapsed;
+  saveStateAndSync();
+  renderPanelsConfig();
+}
+
+function openManagePanelsModal() {
+  ensurePanelConfig(); // Çökmeye karşı kontrol
+  renderManagePanelsList();
+  openModal('managePanelsModal');
+}
+
+function renderManagePanelsList() {
+  ensurePanelConfig(); // Çökmeye karşı kontrol
+  const list = document.getElementById('panelManagerList');
+  list.innerHTML = state.panelConfig.map((p, i) => `
+    <div class="panel-mgr-item ${!p.visible ? 'hidden-panel' : ''}">
+      <div style="font-size:0.85rem; font-weight:600; color:var(--navy);">${p.title}</div>
+      <div class="panel-actions">
+        <button class="panel-action-btn" onclick="togglePanelVisibility('${p.id}')" title="Gizle/Göster">${p.visible ? '👁️' : '🙈'}</button>
+        <button class="panel-action-btn" onclick="movePanel(${i}, -1)" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="panel-action-btn" onclick="movePanel(${i}, 1)" ${i === state.panelConfig.length - 1 ? 'disabled' : ''}>↓</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function togglePanelVisibility(id) {
+  ensurePanelConfig(); // Çökmeye karşı kontrol
+  const panel = state.panelConfig.find(p => p.id === id);
+  if(panel) panel.visible = !panel.visible;
+  saveStateAndSync();
+  renderManagePanelsList();
+  renderPanelsConfig();
+}
+
+function movePanel(index, dir) {
+  ensurePanelConfig(); // Çökmeye karşı kontrol
+  if(index + dir < 0 || index + dir >= state.panelConfig.length) return;
+  const temp = state.panelConfig[index];
+  state.panelConfig[index] = state.panelConfig[index + dir];
+  state.panelConfig[index + dir] = temp;
+  saveStateAndSync();
+  renderManagePanelsList();
+  renderPanelsConfig();
+}
+/* ═══════════════════════════════════════════════════════════
    HELPERS & VIEWS
 ═══════════════════════════════════════════════════════════ */
 const MONTHS_TR  = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
@@ -1547,8 +1716,9 @@ function renderView(){
 }
 
 function renderAll(){
-  renderCountdown();renderSubjects();renderCategories();
-  renderProgress();renderGeneralNotes();renderView();updateAnalyticsBar();
+  renderCountdown(); renderSubjects(); renderCategories();
+  renderProgress(); renderGeneralNotes(); renderView(); updateAnalyticsBar();
+  renderPanelsConfig(); // BUNU EKLE
 }
 
 function updateDateNav(){
