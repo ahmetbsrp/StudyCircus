@@ -36,17 +36,16 @@ body {
 ═══════════════════════════════════════════════════════════ */
 body.dark-theme {
   --ink: #f8fafc;
-  --navy: #60a5fa; /* Açık mavi, karanlıkta okunabilirlik için */
-  --white: #1e293b; /* Kartların ve modalların arka planı (Koyu Lacivert/Gri) */
+  --navy: #60a5fa; 
+  --white: #1e293b; 
   --border: rgba(255,255,255,0.1);
   --muted: #94a3b8;
   --glass: rgba(30, 41, 59, 0.85);
   --shadow: 0 4px 24px rgba(0,0,0,0.4);
   --shadow-lg: 0 12px 48px rgba(0,0,0,0.6);
-  background: #0f172a; /* En arka plan rengi */
+  background: #0f172a; 
 }
 
-/* Koyu modda ekstra düzeltilmesi gereken spesifik yerler */
 body.dark-theme .day-head, 
 body.dark-theme .sb-section, 
 body.dark-theme .form-input {
@@ -61,7 +60,7 @@ body.dark-theme .icon-btn:hover {
   background: rgba(255,255,255,0.1);
 }
 body.dark-theme .btn-primary {
-  background: #2563eb; /* Koyu modda buton daha belirgin bir mavi olsun */
+  background: #2563eb; 
   color: #ffffff;
 }
 body.dark-theme .nav-bar {
@@ -92,6 +91,7 @@ body.dark-theme .nav-bar {
   position: sticky;
   top: 0; z-index: 100;
   border-bottom: 1px solid var(--border);
+  gap: 15px; /* Logo ve sağ menü arasına boşluk */
 }
 
 .logo {
@@ -100,10 +100,26 @@ body.dark-theme .nav-bar {
   font-size: 1.5rem;
   color: var(--navy);
   cursor: pointer;
+  flex-shrink: 0; /* Logonun ezilmesini önler */
 }
 .logo span { color: var(--gold); }
 
-.header-right { display: flex; align-items: center; gap: 12px; }
+/* MOBİL UYUMLU HORIZONTAL SCROLLING HEADER RIGHT */
+.header-right {
+  display: flex; 
+  align-items: center; 
+  gap: 12px;
+  flex: 1; /* Kalan boşluğu doldur */
+  min-width: 0; /* İçeriğin taşmasına izin ver */
+  justify-content: flex-end;
+  overflow-x: auto; /* Yatay kaydırma */
+  -webkit-overflow-scrolling: touch;
+  padding: 10px 0; /* Kaydırırken gölgelerin kesilmemesi için */
+  scrollbar-width: none; /* Firefox için gizle */
+}
+.header-right::-webkit-scrollbar { display: none; } /* Chrome/Safari için gizle */
+.header-right > * { flex-shrink: 0; } /* Butonların sıkışmasını engeller */
+
 
 .clock {
   font-family: 'DM Mono', monospace;
@@ -203,8 +219,6 @@ body.dark-theme .nav-bar {
 /* ═══════════════════════════════════════════════════════════
    PHASE 1 - ROL VE ONAY (PENDING) STİLLERİ
 ═══════════════════════════════════════════════════════════ */
-
-/* Rol Bazlı Görünürlük Kısıtlamaları */
 html.student-mode .coach-only            { display: none !important; }
 html.student-mode .add-block-btn         { display: none !important; }
 html.student-mode .add-day-btn           { display: none !important; }
@@ -213,7 +227,6 @@ html.student-mode [data-guard="coach"]   { display: none !important; }
 html.student-mode .sb-add-btn            { display: none !important; }
 html.student-mode #panelManageBtn        { display: none !important; }
 
-/* Onay Bekleyen Görev (Pending) */
 .block-item.status-pending {
   border-color: var(--gold) !important;
   background: rgba(244,162,97,0.04) !important;
@@ -226,7 +239,6 @@ html.student-mode #panelManageBtn        { display: none !important; }
   color: var(--gold);
 }
 
-/* Onaylanmış Görev (Approved) */
 .block-item.status-approved {
   border-color: var(--green) !important;
   opacity: .75;
@@ -237,11 +249,10 @@ html.student-mode #panelManageBtn        { display: none !important; }
   font-size: 0.7rem;
 }
 
-/* Ekonomi Bileşenleri */
 .ticket-display {
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: 0.7rem; font-weight: 600;
-  padding: 4px 10px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 600;
+  padding: 6px 12px; border-radius: 20px;
   background: rgba(244,162,97,0.15); color: var(--gold);
   font-family: 'DM Mono', monospace;
   cursor: pointer;
@@ -250,11 +261,10 @@ html.student-mode #panelManageBtn        { display: none !important; }
 
 .role-badge {
   display: inline-flex; align-items: center;
-  font-size: 0.65rem; font-weight: 600;
-  padding: 3px 9px; border-radius: 20px;
+  font-size: 0.7rem; font-weight: 600;
+  padding: 5px 10px; border-radius: 20px;
 }
 
-/* Onay Listesi Elemanı */
 .pending-item {
   display: flex; align-items: center; gap: 10px;
   background: rgba(244,162,97,0.05);
@@ -270,9 +280,9 @@ html.student-mode #panelManageBtn        { display: none !important; }
 .pending-actions { display: flex; gap: 5px; }
 
 .pend-btn {
-  width: 28px; height: 28px; border-radius: 7px;
+  width: 32px; height: 32px; border-radius: 7px;
   display: flex; align-items: center; justify-content: center;
-  font-size: .8rem; font-weight: 700; transition: all .15s;
+  font-size: .9rem; font-weight: 700; transition: all .15s;
   border: 1.5px solid; cursor: pointer;
 }
 .pend-btn.approve { background: rgba(82,183,136,.1); color: var(--green); border-color: rgba(82,183,136,.3); }
@@ -293,7 +303,7 @@ html.student-mode #panelManageBtn        { display: none !important; }
    SIDEBAR & PANELS
 ═══════════════════════════════════════════════════════════ */
 .sidebar {
-  position: fixed; top: 0; right: -320px; width: 320px; height: 100vh;
+  position: fixed; top: 0; right: -350px; width: 350px; height: 100vh;
   background: var(--white); z-index: 200;
   box-shadow: var(--shadow-lg); transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex; flex-direction: column;
@@ -360,7 +370,7 @@ html.student-mode #panelManageBtn        { display: none !important; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(29,53,87,0.3); background: #152944; }
 .btn-secondary { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--white); color: var(--navy); font-weight: 600; cursor: pointer; }
 
-.icon-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 1rem; }
+.icon-btn { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 1.1rem; }
 .icon-btn:hover { background: #f8f9fa; border-color: var(--navy); transform: translateY(-1px); }
 
 /* ═══════════════════════════════════════════════════════════
@@ -371,18 +381,62 @@ html.student-mode #panelManageBtn        { display: none !important; }
 @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ═══════════════════════════════════════════════════════════
-   RESPONSIVE
+   MOBİL (RESPONSIVE) İYİLEŞTİRMELERİ
 ═══════════════════════════════════════════════════════════ */
+
+/* Tablet & Küçük Ekranlar */
 @media (max-width: 1024px) {
   .weekly-grid { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* Ara Geçiş Ekranları */
 @media (max-width: 768px) {
   .weekly-grid { grid-template-columns: repeat(2, 1fr); }
   .header { padding: 0 16px; }
-  .logo { font-size: 1.2rem; }
+  
+  /* Sağdaki kaydırılabilir alanı sola hizala ki kaydırırken ikonlar kesilmesin */
+  .header-right { justify-content: flex-start; }
 }
-@media (max-width: 480px) {
+
+/* MOBİL (Telefon Ekranları) */
+@media (max-width: 600px) {
+  /* 1. Gridler Tek Sutun */
   .weekly-grid { grid-template-columns: 1fr; }
+  
+  /* 2. Form İçerikleri Alt Alta (Tarih ve Saat yan yana durmasın) */
+  .form-row { grid-template-columns: 1fr; gap: 15px; }
+
+  /* 3. Ana Boşluklar Azaltıldı */
+  .main-content { padding: 12px; }
+  .header { padding: 0 12px; gap: 10px; }
+  .logo { font-size: 1.3rem; }
+
+  /* 4. Saat Ekranı Kaplamasın */
   .clock { display: none; }
+
+  /* 5. Navigasyon Küçüldü */
   .nav-item { font-size: 0.8rem; padding: 10px 5px; }
+
+  /* 6. Sidebar (My Panel) Full Screen */
+  .sidebar { 
+    width: 100%; 
+    right: -100%; 
+    border-radius: 0; /* Köşe yuvarlamaları kalkar, ekranı tam kaplar */
+  }
+
+  /* 7. Modallar (Açılır Penceler) "Bottom Sheet" Şekline Dönüşür */
+  .overlay { 
+    padding: 0; /* Kenar boşluğu sıfırlanır */
+    align-items: flex-end; /* Modalı alt kısıma yapıştırır */
+  }
+  .modal {
+    border-radius: 24px 24px 0 0; /* Sadece üst köşeler yuvarlanır */
+    max-height: 90vh; /* Çok uzunsa üstten boşluk bırakır */
+    /* Ekrandan giriş animasyonu aşağıdan yukarı olacak şekilde ayarlanır */
+    transform: translateY(100%) !important; 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .overlay.open .modal { 
+    transform: translateY(0) !important; 
+  }
 }
