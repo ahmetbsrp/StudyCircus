@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>StudyCircus — Giriş</title>
+<meta name="theme-color" content="#0f1923">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f1923;
+  --navy: #1D3557;
+  --red: #E63946;
+  --blue: #457B9D;
+  --orange: #E07A5F;
+  --green: #52B788;
+  --gold: #F4A261;
+  --purple: #9B72CF;
+  --cream: #FDFCDC;
+  --white: #FFFFFF;
+  --border: rgba(29,53,87,0.14);
+  --muted: #8892a0;
+  --shadow: 0 4px 24px rgba(15,25,35,0.12);
+  --shadow-lg: 0 16px 56px rgba(15,25,35,0.18);
+  --radius: 16px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input { font-family: inherit; }
+input:focus { outline: none; }
+
+/* ── BACKGROUND ── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+.bg-orb {
+  position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+  filter: blur(80px);
+}
+.bg-orb-1 { width: 500px; height: 500px; top: -120px; left: -120px; background: radial-gradient(circle, rgba(29,53,87,0.6), transparent 70%); }
+.bg-orb-2 { width: 400px; height: 400px; bottom: -100px; right: -80px; background: radial-gradient(circle, rgba(230,57,70,0.2), transparent 70%); }
+.bg-orb-3 { width: 300px; height: 300px; top: 40%; left: 30%; background: radial-gradient(circle, rgba(155,114,207,0.1), transparent 70%); }
+
+/* ── LAYOUT ── */
+.login-wrap {
+  position: relative; z-index: 1;
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px 16px calc(24px + var(--safe-bottom));
+}
+
+/* ── LOGO ── */
+.logo-block {
+  text-align: center; margin-bottom: 40px;
+}
+.logo-mark {
+  font-size: 3rem; line-height: 1;
+  margin-bottom: 10px;
+  display: block;
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; font-weight: 900;
+  letter-spacing: -1px;
+  color: white;
+}
+.logo-text em { color: var(--red); font-style: normal; }
+.logo-sub {
+  font-size: 0.75rem; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+  margin-top: 6px;
+}
+
+/* ── CARD ── */
+.login-card {
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  width: 100%; max-width: 420px;
+  padding: 28px 24px;
+  backdrop-filter: blur(20px);
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem; font-weight: 700;
+  color: white; margin-bottom: 4px;
+}
+.card-sub {
+  font-size: 0.74rem; color: rgba(255,255,255,0.4);
+  margin-bottom: 20px; line-height: 1.5;
+}
+
+/* ── TABS ── */
+.role-tabs {
+  display: flex; gap: 6px; margin-bottom: 20px;
+  background: rgba(255,255,255,0.04); border-radius: 10px; padding: 4px;
+}
+.role-tab {
+  flex: 1; padding: 9px;
+  border-radius: 8px; font-size: 0.76rem; font-weight: 600;
+  color: rgba(255,255,255,0.4); transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.role-tab.active { background: var(--navy); color: white; }
+
+/* ── FORM ELEMENTS ── */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.8px; color: rgba(255,255,255,0.35);
+  display: block; margin-bottom: 6px;
+}
+.form-input {
+  width: 100%; padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 10px; font-size: 0.9rem; color: white;
+  transition: border-color 0.15s, background 0.15s;
+  text-transform: uppercase; letter-spacing: 2px;
+  font-family: 'DM Mono', monospace;
+}
+.form-input::placeholder { text-transform: none; letter-spacing: 0; color: rgba(255,255,255,0.2); font-family: 'Outfit', sans-serif; font-size: 0.82rem; }
+.form-input:focus { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+
+/* ── BUTTONS ── */
+.btn-main {
+  width: 100%; padding: 13px; border-radius: 10px;
+  background: var(--navy); color: white;
+  font-size: 0.86rem; font-weight: 600; letter-spacing: 0.3px;
+  transition: all 0.2s; min-height: 48px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-main:hover { background: #2a4a78; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(29,53,87,0.4); }
+.btn-main:active { transform: none; }
+.btn-create {
+  background: transparent; border: 1.5px dashed rgba(255,255,255,0.2);
+  width: 100%; padding: 13px; border-radius: 10px;
+  color: rgba(255,255,255,0.5); font-size: 0.82rem; font-weight: 500;
+  transition: all 0.2s; min-height: 48px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-create:hover { border-color: rgba(255,255,255,0.4); color: white; }
+.btn-row { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+/* ── DIVIDER ── */
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 16px 0;
+}
+.divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
+.divider-text { font-size: 0.65rem; color: rgba(255,255,255,0.3); font-weight: 500; }
+
+/* ── ACCOUNT HISTORY ── */
+.accounts-section { margin-top: 28px; width: 100%; max-width: 420px; }
+.accounts-label {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 1px; color: rgba(255,255,255,0.25);
+  margin-bottom: 10px; padding: 0 2px;
+}
+.accounts-list { display: flex; flex-direction: column; gap: 6px; }
+.account-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.account-card:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); transform: translateX(2px); }
+.account-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.account-card.role-coach::before { background: var(--gold); }
+.account-card.role-student::before { background: var(--blue); }
+.account-card-role {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; flex-shrink: 0;
+}
+.account-card.role-coach .account-card-role { background: rgba(244,162,97,0.15); }
+.account-card.role-student .account-card-role { background: rgba(69,123,157,0.15); }
+.account-card-info { flex: 1; min-width: 0; }
+.account-card-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem; font-weight: 500; color: white;
+  letter-spacing: 2px;
+}
+.account-card-meta { font-size: 0.65rem; color: rgba(255,255,255,0.3); margin-top: 2px; }
+.account-card-arrow { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
+.account-card-del {
+  width: 24px; height: 24px; border-radius: 6px;
+  background: rgba(230,57,70,0.1); color: rgba(230,57,70,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.7rem; transition: all 0.15s;
+  flex-shrink: 0;
+}
+.account-card-del:hover { background: var(--red); color: white; }
+
+/* ── NEW COACH PANEL ── */
+#newCoachPanel { display: none; }
+.success-box {
+  background: rgba(82,183,136,0.1); border: 1.5px solid rgba(82,183,136,0.3);
+  border-radius: 12px; padding: 16px;
+  margin-bottom: 16px;
+}
+.success-box-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--green); margin-bottom: 10px; }
+.id-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.id-box {
+  background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.id-box-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
+.id-box-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem; font-weight: 500; letter-spacing: 3px;
+}
+.id-box.coach { color: var(--gold); }
+.id-box.student { color: var(--blue); }
+.id-warn { font-size: 0.7rem; color: rgba(255,255,255,0.35); line-height: 1.5; margin-top: 8px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: calc(20px + var(--safe-bottom)); left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(29,53,87,0.95); color: white;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 0.78rem; font-weight: 500;
+  z-index: 999; opacity: 0; pointer-events: none;
+  transition: all 0.3s; white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── SPINNER ── */
+.spinner {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: white;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── FADE ── */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.login-card, .accounts-section { animation: fadeIn 0.4s ease both; }
+.accounts-section { animation-delay: 0.1s; }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<div class="login-wrap">
+  <div class="logo-block">
+    <span class="logo-mark">🎪</span>
+    <div class="logo-text">Study<em>Circus</em></div>
+    <div class="logo-sub">Plan · Track · Achieve</div>
+  </div>
+
+  <!-- LOGIN CARD -->
+  <div class="login-card" id="loginCard">
+    <div class="card-title">Hoş Geldin</div>
+    <div class="card-sub">Devam etmek için hesap ID'ni gir ya da yeni bir Koç hesabı aç.</div>
+
+    <!-- ROLE TABS -->
+    <div class="role-tabs" id="roleTabs">
+      <button class="role-tab active" onclick="selectRole('coach')" id="tab-coach">🎓 Koç</button>
+      <button class="role-tab" onclick="selectRole('student')" id="tab-student">🎒 Öğrenci</button>
+    </div>
+
+    <!-- ENTER ID PANEL -->
+    <div id="enterIdPanel">
+      <div class="form-group">
+        <label class="form-label" id="idInputLabel">Koç ID'si</label>
+        <input class="form-input" id="accountIdInput" placeholder="A1B2C" maxlength="5" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <div class="btn-row">
+        <button class="btn-main" onclick="loginWithId()" id="loginBtn">
+          <span id="loginBtnText">Giriş Yap</span>
+          <div class="spinner" id="loginSpinner"></div>
+        </button>
+        <div class="divider" id="coachDivider">
+          <div class="divider-line"></div>
+          <div class="divider-text">veya</div>
+          <div class="divider-line"></div>
+        </div>
+        <button class="btn-create" onclick="showNewCoachPanel()" id="createBtn">✦ Yeni Koç Hesabı Aç</button>
+      </div>
+    </div>
+
+    <!-- NEW COACH PANEL -->
+    <div id="newCoachPanel">
+      <div class="success-box">
+        <div class="success-box-title">✓ Hesap Oluşturuldu</div>
+        <div class="id-pair">
+          <div class="id-box coach">
+            <div class="id-box-label">🎓 Koç ID</div>
+            <div class="id-box-val" id="newCoachId">—</div>
+          </div>
+          <div class="id-box student">
+            <div class="id-box-label">🎒 Öğrenci ID</div>
+            <div class="id-box-val" id="newStudentId">—</div>
+          </div>
+        </div>
+        <div class="id-warn">⚠️ Bu ID'leri şimdi bir yere kaydet. Bir daha gösterilmeyecek.</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-main" onclick="enterAsNewCoach()" style="background:var(--green)">🎓 Koç Olarak Gir</button>
+        <button class="btn-create" onclick="cancelNewCoach()">← Geri Dön</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCOUNT HISTORY -->
+  <div class="accounts-section" id="accountsSection">
+    <div class="accounts-label">📋 Kayıtlı Hesaplar</div>
+    <div class="accounts-list" id="accountsList"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── CONFIG ── */
+const APP_URL = './index.html'; // ana sayfa
+const ACCOUNTS_KEY = 'studyCircus_accounts';
+const STORAGE_KEY = 'studyCircus_v3';
+const SESSION_KEY = 'studyCircus_session';
+const WORKER_URL = 'https://database.ahmetbsarpkaya.workers.dev/';
+
+let currentRole = 'coach';
+let pendingCoachId = null;
+let pendingStudentId = null;
+
+/* ── HELPERS ── */
+function generateId() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let id = '';
+  for (let i = 0; i < 5; i++) id += chars.charAt(Math.floor(Math.random() * chars.length));
+  return id;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+/* ── ROLE SELECTION ── */
+function selectRole(role) {
+  currentRole = role;
+  document.getElementById('tab-coach').classList.toggle('active', role === 'coach');
+  document.getElementById('tab-student').classList.toggle('active', role === 'student');
+  document.getElementById('idInputLabel').textContent = role === 'coach' ? 'Koç ID\'si' : 'Öğrenci ID\'si';
+  document.getElementById('createBtn').style.display = role === 'coach' ? 'flex' : 'none';
+  document.getElementById('coachDivider').style.display = role === 'coach' ? 'flex' : 'none';
+  document.getElementById('accountIdInput').placeholder = role === 'coach' ? 'A1B2C' : 'X9Y8Z';
+  document.getElementById('accountIdInput').focus();
+}
+
+/* ── NEW COACH ── */
+function showNewCoachPanel() {
+  pendingCoachId = generateId();
+  do { pendingStudentId = generateId(); } while (pendingStudentId === pendingCoachId);
+  
+  document.getElementById('newCoachId').textContent = pendingCoachId;
+  document.getElementById('newStudentId').textContent = pendingStudentId;
+  
+  document.getElementById('enterIdPanel').style.display = 'none';
+  document.getElementById('newCoachPanel').style.display = 'block';
+  
+  // YENİ: Tab geçişlerini kilitle
+  document.getElementById('roleTabs').style.pointerEvents = 'none';
+  document.getElementById('roleTabs').style.opacity = '0.5';
+}
+
+function cancelNewCoach() {
+  pendingCoachId = null;
+  pendingStudentId = null;
+  
+  document.getElementById('enterIdPanel').style.display = 'block';
+  document.getElementById('newCoachPanel').style.display = 'none';
+  
+  // YENİ: Tab geçişlerini geri aç
+  document.getElementById('roleTabs').style.pointerEvents = 'auto';
+  document.getElementById('roleTabs').style.opacity = '1';
+}
+
+async function enterAsNewCoach() {
+  if (!pendingCoachId) return;
+  setLoading(true);
+
+  try {
+    // Initialize fresh state on cloud
+    const freshState = buildFreshState(pendingCoachId, pendingStudentId);
+    const allData = await fetchAllData();
+    allData[pendingCoachId] = { ...freshState, _role: 'COACH', _linkedStudentId: pendingStudentId, _savedAt: Date.now() };
+    await pushAllData(allData);
+
+    // Save session & history
+    saveSession(pendingCoachId, 'COACH', pendingStudentId);
+    addToHistory(pendingCoachId, 'COACH');
+    window.location.href = APP_URL;
+  } catch (e) {
+    showToast('Hata: ' + e.message);
+    setLoading(false);
+  }
+}
+
+/* ── LOGIN ── */
+async function loginWithId() {
+  const inputId = document.getElementById('accountIdInput').value.toUpperCase().trim();
+  if (!inputId || inputId.length !== 5) {
+    showToast('Geçerli bir 5 haneli ID gir.'); return;
+  }
+  setLoading(true);
+
+  try {
+    const allData = await fetchAllData();
+
+    // Check coach id
+    if (allData[inputId]) {
+      const entry = allData[inputId];
+      if (entry._role === 'COACH' && currentRole === 'coach') {
+        saveSession(inputId, 'COACH', entry._linkedStudentId);
+        addToHistory(inputId, 'COACH');
+        window.location.href = APP_URL;
+        return;
+      }
+      if (entry._role === 'COACH' && currentRole === 'student') {
+        showToast('Bu bir Koç ID\'si. Öğrenci sekmesinde değil, Koç sekmesinde giriş yap.');
+        setLoading(false); return;
+      }
+    }
+
+    // Check if this is a studentId linked to some coach
+    let foundCoach = null;
+    for (const [coachId, entry] of Object.entries(allData)) {
+      if (entry._linkedStudentId === inputId) { foundCoach = { coachId, entry }; break; }
+    }
+
+    if (foundCoach && currentRole === 'student') {
+      saveSession(inputId, 'STUDENT', foundCoach.coachId);
+      addToHistory(inputId, 'STUDENT');
+      window.location.href = APP_URL;
+      return;
+    }
+
+    if (foundCoach && currentRole === 'coach') {
+      showToast('Bu bir Öğrenci ID\'si. Koç sekmesinde değil, Öğrenci sekmesinde giriş yap.');
+      setLoading(false); return;
+    }
+
+    showToast('Bu ID ile kayıtlı hesap bulunamadı.');
+    setLoading(false);
+  } catch (e) {
+    showToast('Sunucuya bağlanılamadı: ' + e.message);
+    setLoading(false);
+  }
+}
+
+/* ── SESSION ── */
+function saveSession(accountId, role, linkedId) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ accountId, role, linkedId, loginAt: Date.now() }));
+  // Also persist in localStorage for the app to read
+  localStorage.setItem('studyCircus_currentSession', JSON.stringify({ accountId, role, linkedId }));
+}
+
+/* ── ACCOUNT HISTORY ── */
+function loadHistory() {
+  try {
+    const saved = localStorage.getItem(ACCOUNTS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch { return []; }
+}
+
+function addToHistory(accountId, role) {
+  let history = loadHistory();
+  // Remove if already exists (will re-add at front)
+  history = history.filter(h => h.accountId !== accountId);
+  history.unshift({ accountId, role, lastSeen: Date.now() });
+  // Keep max 6
+  if (history.length > 6) history = history.slice(0, 6);
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(history));
+}
+
+function removeFromHistory(accountId, event) {
+  event.stopPropagation();
+  let history = loadHistory().filter(h => h.accountId !== accountId);
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(history));
+  renderHistory();
+  showToast('Geçmişten kaldırıldı.');
+}
+
+function renderHistory() {
+  const history = loadHistory();
+  const section = document.getElementById('accountsSection');
+  const list = document.getElementById('accountsList');
+
+  if (!history.length) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+
+  list.innerHTML = history.map(h => {
+    const icon = h.role === 'COACH' ? '🎓' : '🎒';
+    const roleLabel = h.role === 'COACH' ? 'Koç' : 'Öğrenci';
+    const dateStr = new Date(h.lastSeen).toLocaleDateString('tr-TR', { day:'numeric', month:'short' });
+    return `
+      <div class="account-card role-${h.role.toLowerCase()}" onclick="quickLogin('${h.accountId}','${h.role}')">
+        <div class="account-card-role">${icon}</div>
+        <div class="account-card-info">
+          <div class="account-card-id">${h.accountId}</div>
+          <div class="account-card-meta">${roleLabel} · Son giriş ${dateStr}</div>
+        </div>
+        <div class="account-card-arrow">→</div>
+        <button class="account-card-del" onclick="removeFromHistory('${h.accountId}',event)" title="Geçmişten kaldır">✕</button>
+      </div>`;
+  }).join('');
+}
+
+async function quickLogin(accountId, role) {
+  setLoading(true);
+  try {
+    const allData = await fetchAllData();
+
+    if (role === 'COACH') {
+      if (!allData[accountId]) {
+        showToast('Bu hesap artık mevcut değil. Geçmişten kaldırıldı.');
+        removeFromHistory(accountId, { stopPropagation: () => {} });
+        setLoading(false); return;
+      }
+      saveSession(accountId, 'COACH', allData[accountId]._linkedStudentId);
+    } else {
+      // Find coach that owns this student
+      let foundCoach = null;
+      for (const [coachId, entry] of Object.entries(allData)) {
+        if (entry._linkedStudentId === accountId) { foundCoach = coachId; break; }
+      }
+      if (!foundCoach) {
+        showToast('Bu öğrenci hesabı geçersiz. Koç hesabı silinmiş olabilir.');
+        removeFromHistory(accountId, { stopPropagation: () => {} });
+        setLoading(false); return;
+      }
+      saveSession(accountId, 'STUDENT', foundCoach);
+    }
+    addToHistory(accountId, role);
+    window.location.href = APP_URL;
+  } catch (e) {
+    showToast('Bağlantı hatası: ' + e.message);
+    setLoading(false);
+  }
+}
+
+/* ── CLOUD ── */
+async function fetchAllData() {
+  const res = await fetch(WORKER_URL + `?t=${Date.now()}`);
+  if (!res.ok) throw new Error('Sunucuya erişilemedi.');
+  return (await res.json()) || {};
+}
+async function pushAllData(data) {
+  const res = await fetch(WORKER_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (!res.ok) throw new Error('Sunucuya kaydedilemedi.');
+}
+
+/* ── UI HELPERS ── */
+function setLoading(on) {
+  document.getElementById('loginSpinner').style.display = on ? 'block' : 'none';
+  document.getElementById('loginBtnText').style.display = on ? 'none' : 'block';
+  document.getElementById('loginBtn').disabled = on;
+}
+
+/* ── FRESH STATE BUILDER ── */
+function buildFreshState(coachId, studentId) {
+  return {
+    subjects: [],
+    categories: [
+      { id: 'c1', name: 'Study', color: '#1D3557', emoji: '📚' },
+      { id: 'c2', name: 'Break', color: '#F4A261', emoji: '☕' },
+      { id: 'c3', name: 'Review', color: '#52B788', emoji: '🔁' },
+      { id: 'c4', name: 'Exam', color: '#E63946', emoji: '🔴' },
+    ],
+    days: {},
+    generalNotes: [],
+    panelConfig: [
+      { id: 'panel-countdown', title: '⏳ Countdown', visible: true, collapsed: false },
+      { id: 'panel-subjects', title: '📚 Subjects', visible: true, collapsed: false },
+      { id: 'panel-categories', title: '🏷 Categories', visible: true, collapsed: false },
+      { id: 'panel-analytics', title: '📊 Analytics', visible: true, collapsed: false },
+      { id: 'panel-progress', title: '📈 Progress', visible: true, collapsed: false },
+      { id: 'panel-notes', title: '📝 General Notes', visible: true, collapsed: false },
+    ],
+    economy: { tickets: 0 },
+    // metadata
+    _coachId: coachId,
+    _studentId: studentId,
+    _linkedStudentId: studentId,
+    _role: 'COACH',
+    _savedAt: Date.now(),
+  };
+}
+
+/* ── KEYBOARD ── */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('accountIdInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') loginWithId();
+  });
+  renderHistory();
+  // Pre-select role from tab if returning
+  selectRole('coach');
+});
+</script>
+</body>
+</html>

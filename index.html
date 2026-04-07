@@ -1,1108 +1,107 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StudyCircus 🎪</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>StudyCircus 🎪</title>
 
-<meta name="description" content="StudyCircus is a colorful and interactive study planner and tracker app. Organize your lectures, plan your study sessions, and track your progress with ease. Whether you're a student looking to stay on top of your coursework or someone who loves learning, StudyCircus has got you covered!">
-<meta name="theme-color" content="#1D3557">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="StudyCircus">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="description" content="StudyCircus is a colorful and interactive study planner and tracker app.">
+  <meta name="theme-color" content="#1D3557">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="StudyCircus">
+  
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
 
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<style>
-/* ═══════════════════════════════════════════════════════════
-   VARIABLES & RESET
-═══════════════════════════════════════════════════════════ */
-:root {
-  --ink:      #0f1923;
-  --navy:     #1D3557;
-  --red:      #E63946;
-  --blue:     #457B9D;
-  --orange:   #E07A5F;
-  --green:    #52B788;
-  --gold:     #F4A261;
-  --purple:   #9B72CF;
-  --cream:    #FDFCDC;
-  --cream2:   #F7F5C8;
-  --white:    #FFFFFF;
-  --border:   rgba(29,53,87,0.12);
-  --border2:  rgba(29,53,87,0.06);
-  --muted:    #8892a0;
-  --shadow-sm: 0 1px 4px rgba(15,25,35,0.06);
-  --shadow:    0 4px 20px rgba(15,25,35,0.1);
-  --shadow-lg: 0 12px 48px rgba(15,25,35,0.15);
-  --radius:    14px;
-  --radius-sm: 8px;
-  --radius-lg: 20px;
-  --header-h: 56px;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-top:    env(safe-area-inset-top, 0px);
-  --nav-h:    calc(56px + var(--safe-bottom));
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{
-  -webkit-text-size-adjust:100%;
-  scroll-behavior:smooth;
-  overscroll-behavior:none;
-}
-body{
-  font-family:'Outfit',sans-serif;
-  background:var(--cream);
-  color:var(--ink);
-  min-height:100vh;
-  min-height:100dvh;
-  overflow-x:hidden;
-  -webkit-tap-highlight-color: transparent;
-}
-button{font-family:inherit;cursor:pointer;border:none;background:none;}
-input,textarea,select{font-family:inherit;}
-input:focus,textarea:focus,select:focus{outline:none;}
-a{color:inherit;text-decoration:none;}
-
-/* ═══════════════════════════════════════════════════════════
-   SCROLLBAR
-═══════════════════════════════════════════════════════════ */
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(29,53,87,0.2);border-radius:10px;}
-
-/* ═══════════════════════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════════════════════ */
-.header{
-  position:sticky;
-  top:0;
-  z-index:50;
-  height:calc(var(--header-h) + var(--safe-top));
-  padding-top:var(--safe-top);
-  background:var(--navy);
-  display:flex;align-items:center;justify-content:space-between;
-  padding-left:16px;padding-right:16px;
-  box-shadow:0 2px 16px rgba(29,53,87,0.3);
-}
-.logo{
-  font-family:'Playfair Display',serif;
-  font-size:1.3rem;font-weight:900;
-  color:#fff;letter-spacing:-0.3px;
-  display:flex;align-items:center;gap:8px;
-  flex-shrink:0;
-}
-.logo em{color:var(--red);font-style:normal;}
-.header-center{
-  display:flex;align-items:center;gap:8px;
-  flex:1;justify-content:center;
-  min-width:0;
-}
-.view-tabs{
-  display:flex;background:rgba(255,255,255,0.1);
-  border-radius:10px;padding:3px;gap:2px;
-}
-.view-tab{
-  padding:5px 14px;border-radius:8px;
-  font-size:0.72rem;font-weight:600;
-  color:rgba(255,255,255,0.55);
-  letter-spacing:0.3px;
-  transition:all 0.2s;
-  white-space:nowrap;
-}
-.view-tab.active{background:white;color:var(--navy);}
-.view-tab:hover:not(.active){color:rgba(255,255,255,0.85);}
-.header-right{
-  display:flex;align-items:center;gap:6px;
-  flex-shrink:0;
-}
-.clock{
-  font-family:'DM Mono',monospace;
-  font-size:0.65rem;color:rgba(255,255,255,0.4);
-  display:none;
-  white-space:nowrap;
-}
-@media(min-width:1200px){.clock{display:block!important;}}
-.icon-btn{
-  width:34px;height:34px;border-radius:9px;
-  background:rgba(255,255,255,0.1);
-  color:rgba(255,255,255,0.7);
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.95rem;transition:all 0.2s;
-  flex-shrink:0;
-  touch-action: manipulation;
-}
-.icon-btn:hover,.icon-btn:active{background:rgba(255,255,255,0.2);color:#fff;}
-
-/* Sync status indicator */
-.sync-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:0.6rem;font-weight:600;
-  padding:3px 8px;border-radius:20px;
-  background:rgba(255,255,255,0.1);
-  color:rgba(255,255,255,0.6);
-  white-space:nowrap;
-  transition:all 0.3s;
-}
-.sync-badge.syncing{color:#F4A261;background:rgba(244,162,97,0.15);}
-.sync-badge.synced{color:#52B788;background:rgba(82,183,136,0.15);}
-.sync-badge.error{color:#E63946;background:rgba(230,57,70,0.15);}
-.sync-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
-.sync-badge.syncing .sync-dot{animation:pulse 1s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
-
-/* ═══════════════════════════════════════════════════════════
-   GIST CONFIG PANEL (SYNC UI)
-═══════════════════════════════════════════════════════════ */
-.gist-panel-overlay{
-  position:fixed;inset:0;z-index:300;
-  background:rgba(15,25,35,0.6);
-  backdrop-filter:blur(8px);
-  display:flex;align-items:flex-end;justify-content:center;
-  padding:16px;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.2s;
-}
-.gist-panel-overlay.open{opacity:1;pointer-events:all;}
-.gist-panel{
-  background:white;border-radius:var(--radius-lg) var(--radius-lg) 0 0;
-  width:100%;max-width:420px;
-  padding:24px 24px calc(24px + var(--safe-bottom));
-  transform:translateY(100%);
-  transition:transform 0.3s cubic-bezier(.4,0,.2,1);
-}
-.gist-panel-overlay.open .gist-panel{transform:translateY(0);}
-.gist-panel h3{
-  font-family:'Playfair Display',serif;
-  font-size:1.1rem;font-weight:700;
-  color:var(--navy);margin-bottom:6px;
-}
-.gist-panel p{font-size:0.78rem;color:var(--muted);line-height:1.5;margin-bottom:20px;}
-.gist-panel .form-group{margin-bottom:16px;}
-.gist-panel .form-label{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:6px;display:block;}
-.gist-panel .form-input{
-  width:100%;padding:12px 14px;
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  font-size:1rem;color:var(--ink);
-  background:var(--cream);
-  font-family:'DM Mono',monospace;
-  text-align:center;
-  transition:border 0.15s;
-  text-transform: uppercase;
-}
-.gist-panel .form-input:focus{border-color:var(--navy);background:white;}
-.gist-btn-row{display:flex;gap:8px;margin-top:12px;}
-.gist-btn-save{
-  flex:1;padding:12px;border-radius:var(--radius-sm);
-  background:var(--navy);color:white;
-  font-size:0.85rem;font-weight:600;
-  transition:all 0.15s;
-  display:flex;align-items:center;justify-content:center;gap:6px;
-}
-.gist-btn-cancel{
-  padding:12px 16px;border-radius:var(--radius-sm);
-  background:var(--cream);color:var(--muted);
-  font-size:0.85rem;font-weight:600;border:1.5px solid var(--border);
-  transition:all 0.15s;
-}
-.gist-status{
-  margin-top:10px;font-size:0.74rem;line-height:1.5;
-  padding:8px 12px;border-radius:8px;
-  display:none;
-}
-.gist-status.ok{background:#e8f7f0;color:#2d8a5e;display:block;}
-.gist-status.err{background:#fce8e9;color:#c0232c;display:block;}
-.account-id-display {
-  font-family:'DM Mono',monospace; 
-  font-size:1.8rem; 
-  color:var(--navy); 
-  font-weight:700; 
-  text-align:center; 
-  padding:16px; 
-  background:var(--cream); 
-  border-radius:var(--radius-sm); 
-  border:2px dashed var(--border);
-  letter-spacing: 4px;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   ANALYTICS BAR
-═══════════════════════════════════════════════════════════ */
-.analytics-bar{
-  background:var(--white);
-  border-bottom:1px solid var(--border);
-  padding:10px 16px;
-  display:flex;align-items:center;gap:0;
-  overflow-x:auto;
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-}
-.analytics-bar::-webkit-scrollbar{display:none;}
-.astat{
-  display:flex;flex-direction:column;gap:2px;
-  padding:0 16px;
-  border-right:1px solid var(--border);
-  white-space:nowrap;
-  flex-shrink:0;
-}
-.astat:first-child{padding-left:0;}
-.astat:last-child{border-right:none;}
-.astat-label{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);}
-.astat-value{font-family:'DM Mono',monospace;font-size:0.88rem;font-weight:500;color:var(--navy);}
-.astat-value.red{color:var(--red);}
-.astat-value.green{color:var(--green);}
-
-/* ═══════════════════════════════════════════════════════════
-   MAIN LAYOUT
-═══════════════════════════════════════════════════════════ */
-.app-body{
-  display:grid;
-  grid-template-columns:1fr 300px;
-  gap:0;
-  max-width:1440px;
-  margin:0 auto;
-  min-height:calc(100dvh - var(--header-h) - var(--safe-top) - 42px);
-}
-.main-col{
-  padding:20px 20px 100px;
-  min-width:0;
-  -webkit-overflow-scrolling:touch;
-}
-.sidebar-col{
-  border-left:1px solid var(--border);
-  background:var(--white);
-  padding:20px 16px 100px;
-  display:flex;flex-direction:column;gap:16px;
-}
-
-/* ═══════════════════════════════════════════════════════════
-   DATE NAV
-═══════════════════════════════════════════════════════════ */
-.date-nav{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:16px;
-}
-.date-nav-title{
-  font-family:'Playfair Display',serif;
-  font-size:1.2rem;font-weight:700;color:var(--navy);
-}
-.date-nav-sub{font-size:0.72rem;color:var(--muted);margin-top:1px;}
-.nav-arrows{display:flex;gap:6px;}
-.nav-arrow{
-  width:36px;height:36px;border-radius:8px;
-  border:1.5px solid var(--border);
-  background:white;color:var(--navy);
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.85rem;transition:all 0.15s;
-  touch-action:manipulation;
-}
-.nav-arrow:hover,.nav-arrow:active{background:var(--navy);color:white;border-color:var(--navy);}
-
-/* ═══════════════════════════════════════════════════════════
-   DAILY VIEW
-═══════════════════════════════════════════════════════════ */
-#view-daily{display:none;}
-#view-daily.active{display:block;}
-
-.daily-header-card{
-  background:var(--navy);
-  border-radius:var(--radius-lg);
-  padding:20px 24px;
-  color:white;
-  margin-bottom:16px;
-  position:relative;overflow:hidden;
-}
-.daily-header-card::after{
-  content:'';position:absolute;
-  right:-20px;top:-20px;
-  width:120px;height:120px;
-  border-radius:50%;
-  background:rgba(255,255,255,0.04);
-}
-.daily-date-big{
-  font-family:'Playfair Display',serif;
-  font-size:2.8rem;font-weight:900;line-height:1;
-}
-.daily-date-info{
-  display:flex;align-items:flex-end;justify-content:space-between;
-  margin-top:8px;flex-wrap:wrap;gap:6px;
-}
-.daily-day-name{font-size:0.85rem;font-weight:600;opacity:0.7;letter-spacing:1px;text-transform:uppercase;}
-.daily-context-badge{
-  background:rgba(255,255,255,0.12);
-  padding:4px 12px;border-radius:20px;
-  font-size:0.7rem;font-weight:500;opacity:0.9;
-}
-.exam-alert{
-  background:var(--red);
-  border-radius:var(--radius);
-  padding:12px 16px;
-  color:white;
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:14px;
-  font-size:0.82rem;font-weight:600;
-}
-
-/* Daily log */
-.daily-log-card{
-  background:white;border-radius:var(--radius);
-  border:1.5px solid var(--border);
-  padding:16px;margin-bottom:14px;
-  overflow:hidden;
-}
-.card-header-row{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;
-}
-.card-title{
-  font-size:0.78rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:0.8px;color:var(--muted);
-}
-/* Responsive log grid */
-.log-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:480px){.log-grid{grid-template-columns:1fr;}}
-.log-field{display:flex;flex-direction:column;gap:4px;}
-.log-label{font-size:0.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-.log-input{
-  background:var(--cream);
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  padding:9px 10px;
-  font-size:0.85rem;color:var(--ink);
-  transition:border 0.15s;
-  width:100%;
-  min-height:42px;
-}
-.log-input:focus{border-color:var(--navy);}
-.log-textarea{
-  resize:vertical;min-height:70px;
-  background:var(--cream);
-  border:1.5px solid var(--border);
-  border-radius:var(--radius-sm);
-  padding:9px 10px;
-  font-size:0.82rem;color:var(--ink);
-  line-height:1.5;
-  transition:border 0.15s;
-  width:100%;
-}
-.log-textarea:focus{border-color:var(--navy);}
-.mood-row{
-  display:flex;gap:6px;flex-wrap:wrap;
-}
-.mood-btn{
-  padding:7px 12px;border-radius:20px;
-  font-size:0.75rem;font-weight:500;
-  border:1.5px solid var(--border);
-  background:white;color:var(--muted);
-  transition:all 0.15s;
-  touch-action:manipulation;
-  min-height:36px;
-}
-.mood-btn.active{border-color:var(--navy);background:var(--navy);color:white;}
-.save-log-btn{
-  margin-top:12px;width:100%;
-  padding:11px;border-radius:var(--radius-sm);
-  background:var(--navy);color:white;
-  font-size:0.82rem;font-weight:600;
-  letter-spacing:0.3px;
-  transition:all 0.15s;
-  min-height:44px;
-  touch-action:manipulation;
-}
-.save-log-btn:hover,.save-log-btn:active{background:#0f2440;}
-.save-log-btn.saved{background:var(--green);}
-
-/* Blocks */
-.blocks-section-title{
-  font-size:0.72rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:0.8px;color:var(--muted);
-  margin-bottom:10px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.add-block-btn{
-  display:flex;align-items:center;gap:4px;
-  padding:6px 12px;border-radius:6px;
-  font-size:0.7rem;font-weight:600;
-  background:var(--cream);color:var(--navy);
-  border:1.5px solid var(--border);
-  transition:all 0.15s;
-  touch-action:manipulation;
-  min-height:32px;
-}
-.add-block-btn:hover,.add-block-btn:active{background:var(--navy);color:white;border-color:var(--navy);}
-
-.block-item{
-  background:white;border-radius:var(--radius);
-  border:1.5px solid var(--border);
-  padding:14px 16px;
-  margin-bottom:8px;
-  position:relative;
-  transition:all 0.15s;
-  cursor:pointer;
-  -webkit-user-select:none;user-select:none;
-}
-.block-item:hover{box-shadow:var(--shadow);}
-.block-item.completed{opacity:0.55;}
-.block-item .block-stripe{
-  position:absolute;left:0;top:0;bottom:0;
-  width:4px;border-radius:4px 0 0 4px;
-}
-.block-item .block-content{padding-left:8px;}
-.block-item .bi-label{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px;}
-.block-item .bi-title{font-size:0.88rem;font-weight:600;color:var(--ink);margin-bottom:3px;}
-.block-item .bi-desc{font-size:0.74rem;color:#666;line-height:1.5;}
-.block-item .bi-meta{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;}
-.bi-tag{
-  padding:2px 8px;border-radius:20px;
-  font-size:0.62rem;font-weight:600;
-  background:var(--cream);color:var(--muted);
-  border:1px solid var(--border);
-}
-.block-actions{
-  position:absolute;right:10px;top:10px;
-  display:flex;gap:4px;
-}
-@media(hover:hover){
-  .block-actions{opacity:0;transition:opacity 0.15s;}
-  .block-item:hover .block-actions{opacity:1;}
-}
-.block-act-btn{
-  width:30px;height:30px;border-radius:6px;
-  background:var(--cream);border:1px solid var(--border);
-  font-size:0.78rem;color:var(--muted);
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.15s;
-  touch-action:manipulation;
-}
-.block-act-btn:hover,.block-act-btn:active{background:var(--red);color:white;border-color:var(--red);}
-.block-act-btn.edit:hover,.block-act-btn.edit:active{background:var(--navy);color:white;border-color:var(--navy);}
-.block-act-btn.check:hover,.block-act-btn.check:active{background:var(--green);color:white;border-color:var(--green);}
-
-/* ═══════════════════════════════════════════════════════════
-   WEEKLY VIEW
-═══════════════════════════════════════════════════════════ */
-#view-weekly{display:none;}
-#view-weekly.active{display:block;}
-
-.week-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
-}
-@media(max-width:600px){.week-grid{grid-template-columns:1fr;}}
-
-.wday-card{
-  background:white;
-  border-radius:var(--radius);
-  border:1.5px solid var(--border);
-  overflow:hidden;
-  transition:all 0.2s;
-  cursor:pointer;
-  touch-action:manipulation;
-}
-.wday-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
-.wday-card.today{border-color:var(--red);box-shadow:0 0 0 3px rgba(230,57,70,0.1);}
-.wday-card.exam-day{border-color:var(--orange);}
-.wday-head{
-  padding:14px 16px 12px;
-  background:var(--navy);color:white;
-  display:flex;align-items:flex-start;justify-content:space-between;
-}
-.wday-head.today-head{background:var(--red);}
-.wday-date{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;line-height:1;}
-.wday-name{font-size:0.68rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;opacity:0.65;margin-top:2px;}
-.wday-ctx{font-size:0.6rem;background:rgba(255,255,255,0.1);padding:3px 8px;border-radius:20px;opacity:0.85;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;}
-.wday-body{padding:10px;}
-.wday-exam-pill{
-  display:inline-flex;align-items:center;gap:4px;
-  background:rgba(230,57,70,0.1);color:var(--red);
-  font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;
-  padding:3px 8px;border-radius:20px;
-  margin-bottom:8px;border:1px solid rgba(230,57,70,0.2);
-}
-.wday-block{
-  border-radius:8px;padding:9px 10px;margin-bottom:6px;
-  border:1px solid transparent;position:relative;overflow:hidden;
-}
-.wday-block::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
-.wday-block .wb-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
-.wday-block .wb-title{font-size:0.76rem;font-weight:600;color:var(--ink);line-height:1.3;}
-.wday-stats{margin-top:8px;padding-top:8px;border-top:1px solid var(--border2);display:flex;gap:8px;align-items:center;}
-.wday-stat{font-size:0.65rem;color:var(--muted);display:flex;align-items:center;gap:3px;}
-.today-badge-sm{
-  background:var(--red);color:white;
-  font-size:0.58rem;font-weight:700;text-transform:uppercase;
-  padding:2px 7px;border-radius:20px;letter-spacing:0.5px;
-  margin-bottom:6px;display:inline-block;
-}
-.add-day-btn{
-  border:2px dashed var(--border);
-  border-radius:var(--radius);
-  background:transparent;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:8px;padding:32px;
-  color:var(--muted);font-size:0.8rem;font-weight:500;
-  cursor:pointer;transition:all 0.2s;
-  min-height:120px;touch-action:manipulation;
-}
-.add-day-btn:hover,.add-day-btn:active{border-color:var(--navy);color:var(--navy);background:rgba(29,53,87,0.03);}
-.add-day-btn .plus{font-size:1.5rem;}
-
-/* ═══════════════════════════════════════════════════════════
-   MONTHLY VIEW
-═══════════════════════════════════════════════════════════ */
-#view-monthly{display:none;}
-#view-monthly.active{display:block;}
-
-.month-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-@media(max-width:480px){.month-grid{gap:2px;}}
-
-.month-head-cell{
-  text-align:center;
-  font-size:0.62rem;font-weight:700;text-transform:uppercase;
-  letter-spacing:0.5px;color:var(--muted);
-  padding:6px 0 10px;
-}
-.month-cell{
-  background:white;border-radius:10px;
-  border:1.5px solid var(--border);
-  min-height:72px;padding:6px;
-  position:relative;transition:all 0.15s;cursor:pointer;
-  touch-action:manipulation;
-}
-@media(max-width:480px){.month-cell{min-height:52px;padding:5px;border-radius:6px;}}
-.month-cell:hover,.month-cell:active{box-shadow:var(--shadow);}
-.month-cell.empty{background:transparent;border-color:transparent;cursor:default;}
-.month-cell.today{border-color:var(--red);}
-.month-cell.has-exam{border-color:var(--orange);}
-.mc-date{font-family:'DM Mono',monospace;font-size:0.78rem;font-weight:500;color:var(--navy);margin-bottom:4px;}
-.mc-today-dot{
-  background:var(--red);color:white;
-  width:22px;height:22px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:0.68rem;margin-bottom:4px;
-}
-.mc-dots{display:flex;gap:3px;flex-wrap:wrap;}
-.mc-dot{width:6px;height:6px;border-radius:50%;}
-.mc-exam{font-size:0.55rem;font-weight:700;color:var(--red);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-
-/* ═══════════════════════════════════════════════════════════
-   SIDEBAR COMPONENTS
-═══════════════════════════════════════════════════════════ */
-.sb-section{
-  background:white;border-radius:var(--radius);
-  border:1.5px solid var(--border);
-  overflow:hidden;
-}
-.sb-head{
-  padding:12px 14px;
-  background:var(--navy);color:white;
-  font-size:0.78rem;font-weight:700;
-  letter-spacing:0.3px;
-  display:flex;align-items:center;justify-content:space-between;
-}
-.sb-head .sb-add-btn{
-  background:rgba(255,255,255,0.15);color:white;border-radius:6px;
-  padding:4px 10px;font-size:0.65rem;font-weight:600;
-  transition:all 0.15s;touch-action:manipulation;min-height:28px;
-}
-.sb-head .sb-add-btn:hover,.sb-head .sb-add-btn:active{background:rgba(255,255,255,0.25);}
-.sb-body{padding:12px 14px;}
-
-.cd-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.cd-item{background:var(--cream);border-radius:10px;padding:10px 11px;border:1px solid var(--border);}
-.cd-name{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:3px;}
-.cd-days{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:500;line-height:1;color:var(--navy);}
-.cd-days.urgent{color:var(--red);}
-.cd-days.soon{color:var(--orange);}
-.cd-unit{font-size:0.6rem;color:var(--muted);margin-left:2px;}
-.cd-date{font-size:0.6rem;color:var(--muted);margin-top:2px;}
-.cd-item.done .cd-days{color:var(--green);font-size:1.1rem;}
-
-
-.subject-row{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 0;border-bottom:1px solid var(--border2);
-  cursor:pointer;transition:all 0.15s;touch-action:manipulation;
-  min-height:44px;
-}
-.subject-row:last-child{border-bottom:none;}
-.subject-row:hover,.subject-row:active{opacity:0.7;}
-.subj-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.subj-name{font-size:0.8rem;font-weight:600;flex:1;}
-.subj-exam{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);}
-.subj-edit-icon{font-size:0.75rem;color:var(--muted);}
-@media(hover:hover){.subj-edit-icon{opacity:0;}.subject-row:hover .subj-edit-icon{opacity:1;}}
-
-.prog-item{margin-bottom:12px;}
-.prog-item:last-child{margin-bottom:0;}
-.prog-row{display:flex;justify-content:space-between;margin-bottom:4px;}
-.prog-name{font-size:0.75rem;font-weight:600;}
-.prog-pct{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);}
-.prog-bar{height:6px;background:var(--cream);border-radius:20px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:20px;transition:width 0.6s cubic-bezier(.4,0,.2,1);}
-
-.note-item{
-  padding:9px 32px 9px 10px;border-radius:8px;
-  background:var(--cream);border:1px solid var(--border);
-  margin-bottom:6px;font-size:0.76rem;line-height:1.5;
-  color:#444;position:relative;
-}
-.note-item .note-del{
-  position:absolute;right:8px;top:50%;transform:translateY(-50%);
-  font-size:0.75rem;color:var(--muted);
-  background:none;border:none;cursor:pointer;
-  padding:4px;touch-action:manipulation;
-  min-width:24px;min-height:24px;
-  display:flex;align-items:center;justify-content:center;
-}
-.note-add{display:flex;gap:6px;margin-top:8px;}
-.note-add input{
-  flex:1;padding:9px 10px;
-  border:1.5px solid var(--border);border-radius:8px;
-  font-size:0.76rem;background:var(--cream);
-  min-height:40px;
-}
-.note-add input:focus{border-color:var(--navy);}
-.note-add button{
-  padding:9px 14px;border-radius:8px;
-  background:var(--navy);color:white;
-  font-size:0.74rem;font-weight:600;
-  transition:all 0.15s;touch-action:manipulation;
-  min-height:40px;
-}
-.note-add button:hover,.note-add button:active{background:#0f2440;}
-
-canvas.donut{display:block;margin:0 auto;}
-.pie-legend{display:flex;flex-direction:column;gap:6px;}
-.pie-leg-item{display:flex;align-items:center;gap:8px;}
-.pie-leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.pie-leg-name{font-size:0.74rem;flex:1;}
-.pie-leg-val{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);}
-
-/* ═══════════════════════════════════════════════════════════
-   MODALS
-═══════════════════════════════════════════════════════════ */
-.overlay{
-  position:fixed;inset:0;z-index:200;
-  background:rgba(15,25,35,0.55);
-  backdrop-filter:blur(6px);
-  display:flex;align-items:flex-end;justify-content:center;
-  padding:0;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.2s;
-  overflow:hidden;
-}
-.overlay.open{opacity:1;pointer-events:all;}
-
-@media(min-width:600px){
-  .overlay{align-items:center;padding:16px;}
-}
-
-.modal{
-  background:white;
-  border-radius:var(--radius-lg) var(--radius-lg) 0 0;
-  width:100%;max-width:500px;
-  max-height:90dvh;overflow-y:auto;
-  transform:translateY(100%);
-  transition:transform 0.3s cubic-bezier(.4,0,.2,1);
-  box-shadow:var(--shadow-lg);
-  padding-bottom:var(--safe-bottom);
-  -webkit-overflow-scrolling:touch;
-}
-.overlay.open .modal{transform:translateY(0);}
-
-@media(min-width:600px){
-  .modal{
-    border-radius:var(--radius-lg);
-    max-height:88vh;
-    transform:translateY(20px) scale(0.97);
-    padding-bottom:0;
-  }
-  .overlay.open .modal{transform:translateY(0) scale(1);}
-}
-
-.modal::before{
-  content:'';display:block;
-  width:36px;height:4px;border-radius:2px;
-  background:var(--border);
-  margin:12px auto 0;
-}
-@media(min-width:600px){.modal::before{display:none;}}
-
-.modal-head{
-  padding:16px 20px 14px;
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;background:white;z-index:1;
-}
-.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
-.modal-close{
-  width:32px;height:32px;border-radius:8px;
-  background:var(--cream);color:var(--muted);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1rem;transition:all 0.15s;touch-action:manipulation;
-}
-.modal-close:hover,.modal-close:active{background:var(--red);color:white;}
-.modal-body{padding:16px 20px 20px;}
-
-.form-group{margin-bottom:14px;}
-.form-label{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:5px;display:block;}
-.form-input{
-  width:100%;padding:10px 12px;
-  border:1.5px solid var(--border);border-radius:var(--radius-sm);
-  font-size:0.88rem;color:var(--ink);background:var(--cream);
-  transition:border 0.15s;min-height:44px;
-}
-.form-input:focus{border-color:var(--navy);background:white;}
-.form-textarea{
-  width:100%;padding:10px 12px;
-  border:1.5px solid var(--border);border-radius:var(--radius-sm);
-  font-size:0.84rem;color:var(--ink);background:var(--cream);
-  resize:vertical;min-height:80px;line-height:1.5;
-  transition:border 0.15s;
-}
-.form-textarea:focus{border-color:var(--navy);background:white;}
-.form-select{
-  width:100%;padding:10px 12px;
-  border:1.5px solid var(--border);border-radius:var(--radius-sm);
-  font-size:0.88rem;color:var(--ink);background:var(--cream);
-  appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892a0' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;
-  cursor:pointer;min-height:44px;
-}
-.form-select:focus{border-color:var(--navy);}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:480px){.form-row{grid-template-columns:1fr;}}
-.btn-primary{
-  width:100%;padding:12px;border-radius:var(--radius-sm);
-  background:var(--navy);color:white;
-  font-size:0.85rem;font-weight:600;
-  transition:all 0.15s;min-height:46px;touch-action:manipulation;
-}
-.btn-primary:hover,.btn-primary:active{background:#0f2440;}
-.btn-danger{
-  padding:10px 16px;border-radius:var(--radius-sm);
-  background:rgba(230,57,70,0.1);color:var(--red);
-  font-size:0.8rem;font-weight:600;border:1.5px solid rgba(230,57,70,0.2);
-  transition:all 0.15s;min-height:42px;touch-action:manipulation;
-}
-.btn-danger:hover,.btn-danger:active{background:var(--red);color:white;}
-.btn-row{display:flex;gap:8px;justify-content:flex-end;align-items:center;}
-
-.color-picker-row{display:flex;gap:8px;flex-wrap:wrap;}
-.color-swatch{
-  width:32px;height:32px;border-radius:50%;cursor:pointer;
-  border:2.5px solid transparent;transition:all 0.15s;
-  touch-action:manipulation;
-}
-.color-swatch.selected{border-color:var(--ink);transform:scale(1.15);}
-
-.cat-grid{display:flex;flex-wrap:wrap;gap:6px;}
-.cat-tag{
-  padding:6px 12px;border-radius:20px;
-  font-size:0.72rem;font-weight:600;
-  border:1.5px solid;cursor:pointer;
-  transition:all 0.15s;
-  display:flex;align-items:center;gap:5px;
-  min-height:34px;
-}
-.cat-tag.active{color:white;}
-
-/* ═══════════════════════════════════════════════════════════
-   MOBILE NAV
-═══════════════════════════════════════════════════════════ */
-.mobile-nav{
-  display:none;
-  position:fixed;bottom:0;left:0;right:0;z-index:60;
-  background:white;border-top:1px solid var(--border);
-  padding-top:8px;
-  padding-bottom:calc(8px + var(--safe-bottom));
-  box-shadow:0 -4px 20px rgba(15,25,35,0.1);
-}
-.mobile-nav-inner{display:flex;justify-content:space-around;}
-.mnav-btn{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:4px 16px;
-  font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;
-  color:var(--muted);transition:color 0.15s;
-  min-height:48px;touch-action:manipulation;
-  min-width:60px;
-}
-.mnav-btn.active{color:var(--navy);}
-.mnav-btn .icon{font-size:1.3rem;line-height:1.2;}
-
-/* ═══════════════════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════════════════ */
-@media(max-width:900px){
-  .app-body{grid-template-columns:1fr;}
-  .sidebar-col{display:none;}
-  .sidebar-col.mobile-open{
-    display:flex;
-    position:fixed;inset:0;
-    top:calc(var(--header-h) + var(--safe-top));
-    z-index:55;overflow-y:auto;
-    padding:16px 16px calc(80px + var(--safe-bottom));
-    background:var(--cream);
-    -webkit-overflow-scrolling:touch;
-  }
-  .mobile-nav{display:block;}
-  .header-center .clock{display:none!important;}
-  .view-tabs{display:none;}
-}
-@media(max-width:600px){
-  .header{padding-left:12px;padding-right:12px;}
-  .logo{font-size:1.05rem;}
-  .main-col{padding:12px 12px calc(80px + var(--safe-bottom));}
-  .analytics-bar{padding:8px 12px;}
-}
-
-/* ═══════════════════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════════════════ */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.fade-up{animation:fadeUp 0.35s ease both;}
-.hidden{display:none!important;}
-
-.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:0.82rem;}
-.empty-state .es-icon{font-size:2.5rem;margin-bottom:8px;}
-
-.toast{
-  position:fixed;bottom:calc(72px + var(--safe-bottom));left:50%;
-  transform:translateX(-50%) translateY(20px);
-  background:var(--navy);color:white;
-  padding:10px 20px;border-radius:20px;
-  font-size:0.8rem;font-weight:500;
-  z-index:999;opacity:0;pointer-events:none;
-  transition:all 0.3s;white-space:nowrap;
-  max-width:calc(100vw - 32px);
-  text-overflow:ellipsis;overflow:hidden;
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* Links */
-.add-link-btn{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:6px 12px;border-radius:6px;font-size:0.7rem;font-weight:600;
-  background:var(--cream);color:var(--navy);
-  border:1.5px dashed var(--border);margin-top:6px;
-  transition:all 0.15s;touch-action:manipulation;min-height:36px;
-}
-.add-link-btn:hover,.add-link-btn:active{background:var(--navy);color:white;border-color:var(--navy);}
-.link-row{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
-.link-row input{
-  flex:1;padding:8px 10px;
-  border:1.5px solid var(--border);border-radius:var(--radius-sm);
-  font-size:0.78rem;color:var(--ink);background:var(--cream);
-  transition:border 0.15s;min-height:40px;
-}
-.link-row input:focus{border-color:var(--navy);background:white;}
-.link-row input.url-input{flex:2;}
-.link-row-del{
-  width:32px;height:32px;border-radius:6px;flex-shrink:0;
-  background:var(--cream);border:1px solid var(--border);
-  font-size:0.75rem;color:var(--muted);
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.15s;cursor:pointer;touch-action:manipulation;
-}
-.link-row-del:hover,.link-row-del:active{background:var(--red);color:white;border-color:var(--red);}
-.block-links{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
-.block-link-pill{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:3px 10px;border-radius:20px;
-  font-size:0.65rem;font-weight:600;
-  background:rgba(29,53,87,0.07);color:var(--navy);
-  border:1px solid rgba(29,53,87,0.15);
-  text-decoration:none;transition:all 0.15s;cursor:pointer;
-  max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  min-height:28px;
-}
-.block-link-pill:hover,.block-link-pill:active{background:var(--navy);color:white;}
-.detail-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
-.detail-link-pill{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:8px 14px;border-radius:20px;
-  font-size:0.76rem;font-weight:600;
-  background:rgba(29,53,87,0.07);color:var(--navy);
-  border:1.5px solid rgba(29,53,87,0.15);
-  text-decoration:none;transition:all 0.15s;min-height:38px;
-}
-.detail-link-pill:hover,.detail-link-pill:active{background:var(--navy);color:white;}
-
-/* ═══════════════════════════════════════════════════════════
-   YENİ EKLENENLER: Haftalık Blok, Paneller ve Yatay Ekran
-═══════════════════════════════════════════════════════════ */
-/* Haftalık görünümde tamamlanan bloklar */
-.wday-block.completed { opacity: 0.55; text-decoration: line-through; }
-
-/* Panel Daralt/Genişlet Tasarımı */
-.sb-section { flex-shrink: 0; transition: order 0.3s ease; }
-.sb-head { cursor: pointer; user-select: none; }
-.sb-head-title { display: flex; align-items: center; gap: 8px; }
-.sb-toggle-icon { font-size: 0.75rem; transition: transform 0.2s ease; opacity: 0.8; }
-.sb-section.collapsed .sb-toggle-icon { transform: rotate(-90deg); }
-.sb-section.collapsed .sb-body { display: none; }
-
-/* Panel Yönetici Modal Öğeleri */
-.panel-mgr-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--cream); border: 1.5px solid var(--border); margin-bottom: 8px; border-radius: 12px; transition: all 0.2s; }
-.panel-mgr-item.hidden-panel { opacity: 0.5; background: transparent; border-style: dashed; }
-.panel-actions { display: flex; gap: 6px; }
-.panel-action-btn { width: 32px; height: 32px; background: white; border: 1.5px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; transition: all 0.15s; touch-action: manipulation; }
-.panel-action-btn:hover:not(:disabled) { background: var(--navy); color: white; border-color: var(--navy); }
-.panel-action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-/* Yatay (Landscape) Mobil/Tablet Cihaz İyileştirmesi */
-@media (max-width: 900px) and (orientation: landscape) {
-  .sidebar-col.mobile-open { padding-bottom: 80px; }
-  .mobile-nav { padding-top: 4px; padding-bottom: calc(4px + var(--safe-bottom)); }
-  .mnav-btn { min-height: 44px; flex-direction: row; gap: 8px; }
-  .mnav-btn .icon { font-size: 1.1rem; }
-}
-</style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-<header class="header">
-  <div class="logo">🎪 Study<em>Circus</em></div>
-  <div class="header-center">
-    <div class="view-tabs" id="desktopViewTabs">
-      <button class="view-tab" onclick="switchView('daily')"   id="tab-daily">Günlük</button>
-      <button class="view-tab" onclick="switchView('weekly')"  id="tab-weekly">Haftalık</button>
-      <button class="view-tab" onclick="switchView('monthly')" id="tab-monthly">Aylık</button>
+<div class="app-container">
+  <header class="header">
+    <div class="header-left">
+      <div class="logo" onclick="location.reload()">StudyCircus <span>🎪</span></div>
     </div>
-  </div>
-  <div class="header-right">
-    <div class="clock" id="liveClock"></div>
-    <div class="sync-badge" id="syncBadge" onclick="openGistPanel()" title="Senkronizasyon Ayarları" style="cursor:pointer">
-      <div class="sync-dot"></div>
-      <span id="syncLabel">Sync</span>
-    </div>
-    <button class="icon-btn" onclick="openModal('addDayModal')" title="Gün ekle">＋</button>
-    <button class="icon-btn" onclick="openManagePanelsModal()" title="Panelleri Yönet" id="panelManageBtn">☰</button>
-  </div>
-</header>
+    <div class="header-right">
+      <div class="clock" id="liveClock">00:00</div>
+      
+      <span id="autoSaveIndicator" style="font-size: 0.65rem; font-weight: 600; color: var(--muted); opacity: 0; transition: opacity 0.3s; margin-right: 12px; font-family:'DM Mono', monospace;">Kaydedildi ✓</span>
 
-<div class="analytics-bar" id="analyticsBar"></div>
+      <span class="ticket-display" id="ticketDisplay" onclick="isCoach() && openEconomyPanel()" title="Ticket Bakiyesi">🎟️ 0</span>
+      <span class="role-badge" id="roleBadge">—</span>
+      
+      <button class="icon-btn coach-only" onclick="openEconomyPanel()" title="Onay Paneli" style="position:relative;">
+        ✅
+        <span class="pending-badge" id="pendingBadge"></span>
+      </button>
 
-<div class="app-body">
-  <div class="main-col">
-    <div class="date-nav" id="dateNav">
-      <div>
-        <div class="date-nav-title" id="dateNavTitle">—</div>
-        <div class="date-nav-sub" id="dateNavSub">—</div>
-      </div>
-      <div class="nav-arrows">
-        <button class="nav-arrow" onclick="navigate(-1)">←</button>
-        <button class="nav-arrow" onclick="goToday()">Bugün</button>
-        <button class="nav-arrow" onclick="navigate(1)">→</button>
-      </div>
+      <button class="icon-btn" onclick="toggleTheme()" id="themeToggleBtn" title="Gece Modu">🌙</button>
+      <button class="icon-btn sync-badge" id="syncBadge" onclick="openGistPanel()" title="Cloud Sync">☁️</button>
+      <button class="icon-btn" onclick="toggleSidebar()" title="Kişisel Panel">👤</button>
+      <button class="icon-btn" onclick="logout()" title="Çıkış Yap">⎋</button>
     </div>
+  </header>
 
-    <div id="view-daily"><div id="dailyContent"></div></div>
-    <div id="view-weekly"><div class="week-grid" id="weekGrid"></div></div>
-    <div id="view-monthly"><div class="month-grid" id="monthGrid"></div></div>
-  </div>
+  <nav class="nav-bar">
+    <button class="nav-item active" id="nav-weekly" onclick="switchView('weekly')">Haftalık</button>
+    <button class="nav-item" id="nav-daily" onclick="switchView('daily')">Günlük</button>
+    <button class="nav-item" id="nav-monthly" onclick="switchView('monthly')">Aylık</button>
+    <div class="nav-indicator"></div>
+  </nav>
 
-  <aside class="sidebar-col" id="sidebarCol">
-    <div class="sb-section" id="panel-countdown">
-      <div class="sb-head" onclick="togglePanel('panel-countdown')">
-        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> ⏳ Geri Sayım</div>
-      </div>
-      <div class="sb-body"><div class="cd-grid" id="countdownGrid"></div></div>
-    </div>
-    <div class="sb-section" id="panel-subjects">
-      <div class="sb-head" onclick="togglePanel('panel-subjects')">
-        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📚 Dersler</div>
-        <button class="sb-add-btn" onclick="event.stopPropagation(); openModal('addSubjectModal')">+ Ekle</button>
-      </div>
-      <div class="sb-body"><div class="subject-list" id="subjectList"></div></div>
-    </div>
-    <div class="sb-section" id="panel-categories">
-      <div class="sb-head" onclick="togglePanel('panel-categories')">
-        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 🏷 Kategoriler</div>
-        <button class="sb-add-btn" onclick="event.stopPropagation(); openModal('addCategoryModal')">+ Ekle</button>
-      </div>
-      <div class="sb-body"><div class="cat-grid" id="categoryList"></div></div>
-    </div>
-    <div class="sb-section" id="panel-analytics">
-      <div class="sb-head" onclick="togglePanel('panel-analytics')">
-        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📊 Analitik</div>
-      </div>
-      <div class="sb-body">
-        <canvas class="donut" id="donutChart" width="140" height="140"></canvas>
-        <div class="pie-legend" id="pieLegend"></div>
-      </div>
-    </div>
-    <div class="sb-section" id="panel-progress">
-      <div class="sb-head" onclick="togglePanel('panel-progress')">
-        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📈 Hazırlık</div>
-      </div>
-      <div class="sb-body" id="progressSection"></div>
-    </div>
-    <div class="sb-section" id="panel-notes">
-      <div class="sb-head" onclick="togglePanel('panel-notes')">
-        <div class="sb-head-title"><span class="sb-toggle-icon">▼</span> 📝 Genel Notlar</div>
-        <button class="sb-add-btn" onclick="event.stopPropagation(); focusNoteInput()">+ Not</button>
-      </div>
-      <div class="sb-body">
-        <div id="generalNotesList"></div>
-        <div class="note-add">
-          <input type="text" id="generalNoteInput" placeholder="Nota ekle…" onkeydown="if(event.key==='Enter')addGeneralNote()">
-          <button onclick="addGeneralNote()">Ekle</button>
-        </div>
-      </div>
-    </div>
-  </aside>
-
-
+  <main class="main-content">
+    <div id="view-container"></div>
+  </main>
 </div>
 
-<nav class="mobile-nav">
-  <div class="mobile-nav-inner">
-    <button class="mnav-btn" onclick="switchView('daily')"   id="mnav-daily"><span class="icon">📅</span>Günlük</button>
-    <button class="mnav-btn" onclick="switchView('weekly')"  id="mnav-weekly"><span class="icon">📆</span>Haftalık</button>
-    <button class="mnav-btn" onclick="switchView('monthly')" id="mnav-monthly"><span class="icon">🗓</span>Aylık</button>
-    <button class="mnav-btn" onclick="toggleSidebar()"       id="mnav-sidebar"><span class="icon">☰</span>Panel</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Personal Panel</div>
+    <button class="icon-btn" onclick="toggleSidebar()">✕</button>
   </div>
-</nav>
-
-<div class="toast" id="toast"></div>
-
-<div class="gist-panel-overlay" id="gistPanelOverlay" onclick="if(event.target===this)closeGistPanel()">
-  <div class="gist-panel">
-    <h3>☁️ Bulut Senkronizasyonu</h3>
-    <p>Hesap ID'ni kullanarak verilerini buluta kaydedebilir veya başka bir cihaza kolayca yükleyebilirsin.</p>
+  
+  <div class="sidebar-scroll">
+    <div class="sb-section" id="panel-countdown"></div>
+    <div class="sb-section" id="panel-analytics"></div>
+    <div class="sb-section" id="panel-notes"></div>
+    <div class="sb-section" id="panel-subjects"></div>
+    <div class="sb-section" id="panel-categories"></div>
     
-    <div id="syncActiveState" style="display:none;">
-        <div class="form-group">
-            <label class="form-label">Mevcut Hesap ID</label>
-            <div class="account-id-display" id="currentAccountIdDisplay">-----</div>
+    <div class="sb-section coach-only" id="panel-history"></div>
+    
+    <div class="sb-section coach-only" id="panel-approvals">
+      <div class="sb-head" onclick="togglePanel('panel-approvals')" style="background:rgba(244,162,97,0.85);">
+        <div class="sb-head-title">
+          <span class="sb-toggle-icon">▼</span> ✅ Onay Bekleyenler
+          <span id="pendingBadgeSidebar" style="display:none; align-items:center; justify-content:center; min-width:18px; height:18px; border-radius:9px; background:var(--red); color:white; font-size:.58rem; margin-left:6px; padding:0 4px;"></span>
         </div>
-        <div class="gist-btn-row">
-            <button class="gist-btn-save" onclick="saveToCloud()">⬆️ Kaydet</button>
-            <button class="add-block-btn" style="flex:1; justify-content:center; border:1.5px solid var(--border);" onclick="loadFromCloud()">⬇️ Güncelle</button>
-        </div>
-        <div class="gist-btn-row" style="margin-top:16px; gap:8px;">
-            <button class="btn-danger" style="flex:1; background:var(--cream); border-color:var(--border); color:var(--muted);" onclick="unsyncAccount()">Bağlantıyı Kes</button>
-            <button class="btn-danger" style="flex:1; background:var(--red); border-color:var(--red); color:white;" onclick="removeCloudData()">Veriyi Sil</button>
-        </div>
+      </div>
+      <div class="sb-body">
+        <div id="pendingApprovalsListSidebar"></div>
+      </div>
     </div>
 
-    <div id="syncInactiveState" style="display:none;">
-        <div class="form-group">
-            <label class="form-label">Hesap ID (Yüklemek İçin)</label>
-            <input class="form-input" id="accountIdInput" placeholder="Örn: A1B2C" maxlength="5">
-        </div>
-        <div class="gist-btn-row">
-            <button class="gist-btn-cancel" onclick="closeGistPanel()">İptal</button>
-            <button class="gist-btn-save" style="background:var(--green);" onclick="loadFromCloud(document.getElementById('accountIdInput').value)">⬇️ Yükle</button>
-            <button class="gist-btn-save" onclick="saveToCloud()">Yeni Hesap Aç</button>
-        </div>
+    <button class="sb-add-btn" id="panelManageBtn" onclick="openModal('managePanelsModal')">⚙️ Manage Panels</button>
+  </div>
+</aside>
+
+<div class="overlay" id="completeTaskModal">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-head">
+      <div class="modal-title">✅ Görevi Tamamla</div>
+      <button class="modal-close" onclick="closeModal('completeTaskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Tamamlama Notu (Opsiyonel)</label>
+        <textarea class="form-input" id="taskCompleteNote" rows="3" placeholder="Koçuna iletmek istediğin bir mesaj var mı? (Örn: Son 3 soruda zorlandım)"></textarea>
+      </div>
+      <button class="btn-primary" onclick="confirmCompleteTask()">Onaya Gönder 🚀</button>
     </div>
   </div>
 </div>
@@ -1110,93 +109,81 @@ canvas.donut{display:block;margin:0 auto;}
 <div class="overlay" id="addBlockModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title" id="addBlockModalTitle">Blok Ekle</div>
+      <div class="modal-title" id="blockModalTitle">Görev Düzenle</div>
       <button class="modal-close" onclick="closeModal('addBlockModal')">✕</button>
     </div>
-  <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Tarih</label>
-        <input class="form-input" id="blockDateTarget" type="date">
-      </div>
-      <input type="hidden" id="blockOriginalDate">
-      <input type="hidden" id="blockEditId">
+    <div class="modal-body">
+      <input type="hidden" id="blockId">
+      <input type="hidden" id="blockDay">
       
-      <div class="form-group">
-        <label class="form-label">Başlık</label>
-        <input class="form-input" id="blockTitle" placeholder="Calculus: İntegral Teknikleri">
-      </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Kategori</label>
-          <select class="form-select" id="blockCategory"></select>
+          <select class="form-input" id="blockCat"></select>
         </div>
         <div class="form-group">
-          <label class="form-label">Zaman Dilimi</label>
-          <select class="form-select" id="blockTimeSlot">
-            <option value="sabah">🌅 Sabah</option>
-            <option value="öğlen">☀️ Öğlen</option>
-            <option value="öğleden sonra">🌤 Öğleden Sonra</option>
-            <option value="akşam">🌆 Akşam</option>
-            <option value="gece">🌙 Gece</option>
-            <option value="tüm gün">📅 Tüm Gün</option>
-          </select>
+          <label class="form-label">Ders (Opsiyonel)</label>
+          <select class="form-input" id="blockSubj"></select>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Başlangıç</label>
-          <input class="form-input" id="blockStartTime" type="time">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Bitiş</label>
-          <input class="form-input" id="blockEndTime" type="time">
-        </div>
-      </div>
+
       <div class="form-group">
-        <label class="form-label">İlgili Ders</label>
-        <select class="form-select" id="blockSubject">
-          <option value="">— Seçiniz —</option>
-        </select>
+        <label class="form-label">Görev Başlığı</label>
+        <input class="form-input" id="blockTitle" placeholder="Örn: Limit Soru Çözümü">
       </div>
-      <div class="form-group">
-        <label class="form-label">Açıklama</label>
-        <textarea class="form-textarea" id="blockDesc" placeholder="Detaylar, taktikler…"></textarea>
+
+      <div class="form-group coach-only">
+        <label class="form-label">🎟️ Ticket Ödülü</label>
+        <input class="form-input" id="blockReward" type="number" min="0" placeholder="0">
       </div>
+
       <div class="form-group">
-        <label class="form-label">🔗 Linkler</label>
+        <label class="form-label">Açıklama / Hedef</label>
+        <textarea class="form-input" id="blockDesc" rows="3" placeholder="Detaylar..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Bağlantılar</label>
         <div id="blockLinksContainer"></div>
-        <button type="button" class="add-link-btn" onclick="addLinkRow()">＋ Link Ekle</button>
+        <button class="btn-secondary" onclick="addLinkRow()" style="margin-top:5px;">+ Link Ekle</button>
       </div>
-      
-      <div class="btn-row">
-        <button class="btn-danger hidden" id="blockDeleteBtn" onclick="deleteBlock()">Sil</button>
-        <button class="btn-primary hidden" id="blockCopyBtn" style="background:var(--blue); width:auto; padding:10px 16px;" onclick="saveBlock(true)">Kopyala</button>
-        <button class="btn-primary" style="flex:1;" onclick="saveBlock(false)">Kaydet</button>
-      </div>
+
+      <button class="btn-primary" onclick="saveBlock()">Kaydet</button>
     </div>
   </div>
 </div>
 
-<div class="overlay" id="addDayModal">
-  <div class="modal">
+<div class="overlay" id="economyPanel">
+  <div class="modal" style="max-width:480px;">
     <div class="modal-head">
-      <div class="modal-title">Gün Ekle</div>
-      <button class="modal-close" onclick="closeModal('addDayModal')">✕</button>
+      <div class="modal-title">✅ Onay & Ekonomi Paneli</div>
+      <button class="modal-close" onclick="closeEconomyPanel()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="form-group">
-        <label class="form-label">Tarih</label>
-        <input class="form-input" id="newDayDate" type="date">
+      <div class="economy-card" style="display:flex; align-items:center; justify-content:space-between; background:rgba(244,162,97,0.08); border:1.5px solid rgba(244,162,97,0.2); border-radius:12px; padding:14px 16px; margin-bottom:20px;">
+        <div>
+          <div style="font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:4px;">Öğrenci Bakiyesi</div>
+          <div style="font-family:'DM Mono',monospace; font-size:1.8rem; font-weight:500; color:var(--gold);" id="economyTicketBalance">0</div>
+        </div>
+        <div style="font-size:2rem;">🎟️</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Bağlam (opsiyonel)</label>
-        <input class="form-input" id="newDayContext" placeholder="Örn: Tam Gün Kütüphane">
+
+      <div style="margin-bottom:20px;">
+        <div style="font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:10px;">Manuel Düzenleme</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input class="form-input" id="ticketAdjustAmount" type="number" placeholder="Miktar (±)" style="flex:1; min-width:80px;">
+          <input class="form-input" id="ticketAdjustReason" type="text" placeholder="Sebep" style="flex:2; min-width:120px;">
+          <button class="btn-primary" style="width:auto; padding:10px 16px;" onclick="adjustTickets(parseInt(document.getElementById('ticketAdjustAmount').value)||0, document.getElementById('ticketAdjustReason').value); document.getElementById('economyTicketBalance').textContent=getTickets(); document.getElementById('ticketAdjustAmount').value=''; document.getElementById('ticketAdjustReason').value='';">Uygula</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Sınav Günü?</label>
-        <input class="form-input" id="newDayExam" placeholder="Calculus Sınavı · 15:30">
+
+      <div>
+        <div style="font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-bottom:10px;">
+          Onay Bekleyen Görevler
+          <span id="pendingBadgeModal" style="display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; border-radius:9px; background:var(--red); color:white; font-size:.58rem; margin-left:5px; padding:0 4px;"></span>
+        </div>
+        <div id="pendingApprovalsList"></div>
       </div>
-      <button class="btn-primary" onclick="saveDay()">Gün Ekle</button>
     </div>
   </div>
 </div>
@@ -1204,35 +191,26 @@ canvas.donut{display:block;margin:0 auto;}
 <div class="overlay" id="addSubjectModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title" id="subjectModalTitle">Ders Ekle</div>
+      <div class="modal-title">Ders Düzenle</div>
       <button class="modal-close" onclick="closeModal('addSubjectModal')">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="editSubjectId">
+      <input type="hidden" id="subjectId">
       <div class="form-group">
         <label class="form-label">Ders Adı</label>
-        <input class="form-input" id="subjectName" placeholder="Calculus">
+        <input class="form-input" id="subjectName" placeholder="Matematik, Fizik…">
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Sınav Tarihi</label>
-          <input class="form-input" id="subjectExamDate" type="date">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Sınav Saati</label>
-          <input class="form-input" id="subjectExamTime" type="time">
-        </div>
+      <div class="form-group">
+        <label class="form-label">Sınav Tarihi</label>
+        <input type="date" class="form-input" id="subjectExamDate">
       </div>
       <div class="form-group">
         <label class="form-label">Renk</label>
         <div class="color-picker-row" id="subjectColorPicker"></div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Hazırlık (%)</label>
-        <input class="form-input" id="subjectProgress" type="number" min="0" max="100" placeholder="0–100">
-      </div>
-      <div class="btn-row">
-        <button class="btn-danger hidden" id="subjectDeleteBtn" onclick="deleteSubject()">Sil</button>
+      
+      <div style="display:flex; gap:10px; margin-top:15px;">
+        <button class="btn-secondary" id="btnDeleteSubject" style="display:none; color:var(--red); border-color:var(--red);" onclick="deleteSubject()">Sil</button>
         <button class="btn-primary" onclick="saveSubject()">Kaydet</button>
       </div>
     </div>
@@ -1242,13 +220,14 @@ canvas.donut{display:block;margin:0 auto;}
 <div class="overlay" id="addCategoryModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">Kategori Ekle</div>
+      <div class="modal-title">Kategori Düzenle</div>
       <button class="modal-close" onclick="closeModal('addCategoryModal')">✕</button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="categoryId">
       <div class="form-group">
         <label class="form-label">Kategori Adı</label>
-        <input class="form-input" id="catName" placeholder="Study, Break, Review…">
+        <input class="form-input" id="catName" placeholder="Study, Break…">
       </div>
       <div class="form-group">
         <label class="form-label">Renk</label>
@@ -1258,21 +237,35 @@ canvas.donut{display:block;margin:0 auto;}
         <label class="form-label">Emoji</label>
         <input class="form-input" id="catEmoji" placeholder="📚" maxlength="4">
       </div>
-      <button class="btn-primary" onclick="saveCategory()">Kaydet</button>
+      
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn-secondary" id="btnDeleteCategory" style="display:none; color:var(--red); border-color:var(--red);" onclick="deleteCategory()">Sil</button>
+        <button class="btn-primary" onclick="saveCategory()">Kaydet</button>
+      </div>
+
     </div>
   </div>
 </div>
 
-<div class="overlay" id="blockDetailModal">
+<div class="overlay" id="gistPanel">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title" id="detailTitle">—</div>
-      <button class="modal-close" onclick="closeModal('blockDetailModal')">✕</button>
+      <div class="modal-title">☁️ Cloud Sync</div>
+      <button class="modal-close" onclick="closeModal('gistPanel')">✕</button>
     </div>
-    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-body">
+      <div style="text-align:center; margin-bottom:20px; color:var(--muted); font-size:0.9rem; background: rgba(29,53,87,0.05); padding: 15px; border-radius: 12px;">
+        Sistem bulut veritabanına bağlı.<br>
+        <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Senkronizasyon ID:</span><br>
+        <b id="syncAccountIdDisplay" style="font-family:'DM Mono', monospace; color:var(--navy); font-size: 1.1rem;">—</b>
+      </div>
+      <div style="display:flex; flex-direction: column; gap:10px;">
+        <button class="btn-primary" onclick="saveToCloud(); closeModal('gistPanel');">⬆️ Şimdi Buluta Kaydet</button>
+        <button class="btn-secondary" onclick="loadFromCloud(); closeModal('gistPanel');">⬇️ Buluttan Veri Çek</button>
+      </div>
+    </div>
   </div>
 </div>
-
 
 <div class="overlay" id="managePanelsModal">
   <div class="modal">
@@ -1280,18 +273,13 @@ canvas.donut{display:block;margin:0 auto;}
       <div class="modal-title">☰ Manage Panels</div>
       <button class="modal-close" onclick="closeModal('managePanelsModal')">✕</button>
     </div>
-    <div class="modal-body">
-      <div style="font-size:0.75rem; color:var(--muted); margin-bottom:16px;">You can reorder panels or toggle their visibility.</div>
-      <div id="panelManagerList"></div>
-    </div>
+    <div class="modal-body" id="panelManageBody"></div>
   </div>
 </div>
-<script 
-src="./main.js" defer>
 
-</script>
+<div id="toastContainer"></div>
+
+<script src="./main.js"></script>
+
 </body>
 </html>
-</body>
-</html>
-```

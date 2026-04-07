@@ -3,6 +3,7 @@ const CACHE_NAME = 'studycircus-v2.2';
 const STATIC_ASSETS = [
   './index.html',
   './main.js',
+  './style.css',
   './manifest.json',
   'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap'
 ];
