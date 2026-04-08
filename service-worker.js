@@ -1,5 +1,5 @@
-/* StudyCircus Service Worker v2.2 */
-const CACHE_NAME = 'studycircus-v2.2';
+/* StudyCircus Service Worker v2.3 */
+const CACHE_NAME = 'studycircus-v2.3';
 const STATIC_ASSETS = [
   './index.html',
   './main.js',

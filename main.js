@@ -5,6 +5,7 @@ const STORAGE_KEY = 'studyCircus_v3';
 let state = {};
 let currentView = 'weekly';
 let currentDate = new Date();
+let isSyncing = false; // YENİ: Çatışma önleyici kilit
 
 /* ═══════════════════════════════════════════════════════════
    2. SESSION & ROLE (PHASE 1)
@@ -64,6 +65,7 @@ function applyRoleUI() {
 ═══════════════════════════════════════════════════════════ */
 function buildDefaultState() {
   return {
+    _lastModified: Date.now(), // YENİ: Sürüm kontrol sistemi
     subjects: [],
     categories: [
       { id: 'c1', name: 'Konu Çalışması', color: '#1D3557', emoji: '📚' },
@@ -72,17 +74,17 @@ function buildDefaultState() {
     ],
     days: {}, 
     weeks: {}, 
-    generalNotes: '', // YENİ: Tek string olarak genel notlar
+    generalNotes: '', 
     panelConfig: [
       { id: 'panel-countdown', title: '⏳ Geri Sayım', visible: true, collapsed: false },
       { id: 'panel-analytics', title: '📊 Analiz & İlerleme', visible: true, collapsed: false },
       { id: 'panel-notes', title: '📝 Genel Notlar', visible: true, collapsed: false },
       { id: 'panel-subjects', title: '📚 Dersler', visible: true, collapsed: false },
       { id: 'panel-categories', title: '🏷 Kategoriler', visible: true, collapsed: false },
-      { id: 'panel-history', title: '📜 Bilet Geçmişi', visible: true, collapsed: false }, // Sadece koç görecek
+      { id: 'panel-history', title: '📜 Bilet Geçmişi', visible: true, collapsed: false },
       { id: 'panel-approvals', title: '✅ Onay Bekleyenler', visible: true, collapsed: false }
     ],
-    economy: { tickets: 0, history: [] } // YENİ: History eklendi
+    economy: { tickets: 0, history: [] } 
   };
 }
 
@@ -96,6 +98,7 @@ function loadState() {
       if (!state.economy.history) state.economy.history = [];
       if (!state.weeks) state.weeks = {};
       if (typeof state.generalNotes !== 'string') state.generalNotes = '';
+      if (!state._lastModified) state._lastModified = Date.now();
       saveState();
       return; 
     }
@@ -105,23 +108,28 @@ function loadState() {
 }
 
 function saveState() {
+  state._lastModified = Date.now(); // Her lokal kayıtta sürüm yenilenir
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
 }
 
 let cloudAutoSaveTimer = null;
-function scheduleCloudAutoSave() {
+function scheduleCloudAutoSave(instant = false) {
   if (!activeAccountId) return;
   clearTimeout(cloudAutoSaveTimer);
-  cloudAutoSaveTimer = setTimeout(() => saveToCloud(), 3000); 
+  if (instant) {
+    saveToCloud(); // Anında kaydet
+  } else {
+    cloudAutoSaveTimer = setTimeout(() => saveToCloud(), 3000); // 3 saniye bekle
+  }
 }
 
-function saveStateAndSync() {
+function saveStateAndSync(instant = false) {
   saveState();
-  scheduleCloudAutoSave();
+  scheduleCloudAutoSave(instant);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   4. CLOUD SYNC WORKER
+   4. CLOUD SYNC & LIVE UPDATE WORKER
 ═══════════════════════════════════════════════════════════ */
 const WORKER_URL = 'https://database.ahmetbsarpkaya.workers.dev/';
 
@@ -151,10 +159,10 @@ async function updateCentralData(allData) {
 }
 
 async function saveToCloud() {
-  if (!activeAccountId) return;
+  if (!activeAccountId || isSyncing) return; // Çatışma önleme
+  isSyncing = true;
   try {
     updateSyncBadge('syncing');
-    
     const ind = document.getElementById('autoSaveIndicator');
     if (ind) { ind.textContent = 'Kaydediliyor...'; ind.style.opacity = '1'; }
 
@@ -163,43 +171,61 @@ async function saveToCloud() {
     await updateCentralData(allData);
     
     updateSyncBadge('synced');
-    
-    if (ind) { 
-      ind.textContent = 'Kaydedildi ✓'; 
-      setTimeout(() => { ind.style.opacity = '0'; }, 3000); 
-    }
+    if (ind) { ind.textContent = 'Kaydedildi ✓'; setTimeout(() => { ind.style.opacity = '0'; }, 3000); }
     setTimeout(()=>updateSyncBadge('idle'), 3000);
   } catch(e) {
     updateSyncBadge('error'); console.error(e);
     const ind = document.getElementById('autoSaveIndicator');
     if (ind) { ind.textContent = 'Kayıt Hatası ✕'; ind.style.opacity = '1'; }
+  } finally {
+    isSyncing = false; // Kilidi aç
   }
 }
 
-async function loadFromCloud() {
-  if (!activeAccountId) return;
+async function loadFromCloud(isManual = false) {
+  if (!activeAccountId || isSyncing) return; 
+  isSyncing = true;
   try {
-    updateSyncBadge('syncing');
+    if(isManual) updateSyncBadge('syncing');
     const allData = await fetchCentralData();
-    if (!allData[activeAccountId]) { updateSyncBadge('idle'); return; }
+    if (!allData[activeAccountId]) return;
     
-    state = allData[activeAccountId];
-    saveState();
-    renderAll();
-    updateSyncBadge('synced');
-    setTimeout(()=>updateSyncBadge('idle'), 3000);
+    const cloudState = allData[activeAccountId];
+    
+    // YENİ: Sürüm Kontrolü - Sadece buluttaki veri daha yeniyse ekranı güncelle
+    if (isManual || (cloudState._lastModified && (!state._lastModified || cloudState._lastModified > state._lastModified))) {
+      state = cloudState;
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+      renderAll();
+      renderTickets();
+      if(isManual) updateSyncBadge('synced');
+    } else {
+      if(isManual) updateSyncBadge('idle');
+    }
   } catch(e) {
-    updateSyncBadge('error'); console.error(e); showToast('Buluttan veri çekilemedi!');
+    if(isManual) { updateSyncBadge('error'); console.error(e); showToast('Bağlantı hatası!'); }
+  } finally {
+    isSyncing = false;
+    if(isManual) setTimeout(()=>updateSyncBadge('idle'), 3000);
   }
 }
+
+// YENİ: Arka planda her 10 saniyede bir sessizce kontrol et (Canlı Yenileme)
+setInterval(() => {
+  if (activeAccountId && !isSyncing) loadFromCloud(false);
+}, 10000);
+
 
 /* ═══════════════════════════════════════════════════════════
    5. ECONOMY, APPROVALS & HISTORY
 ═══════════════════════════════════════════════════════════ */
 function getTickets() { return state.economy?.tickets ?? 0; }
 function renderTickets() {
-  const el = document.getElementById('ticketDisplay');
-  if (el) el.textContent = `🎟️ ${getTickets()}`;
+  const t = getTickets();
+  const d1 = document.getElementById('ticketDisplay');
+  const d2 = document.getElementById('economyTicketBalance');
+  if (d1) d1.textContent = `🎟️ ${t}`;
+  if (d2) d2.textContent = t;
 }
 
 function adjustTickets(amount, reason) {
@@ -210,7 +236,8 @@ function adjustTickets(amount, reason) {
   state.economy.tickets = Math.max(0, (state.economy.tickets || 0) + amount);
   state.economy.history.push({ date: Date.now(), amount, reason: reason || 'Manuel Düzenleme' });
   
-  saveStateAndSync(); renderAll(); renderTickets();
+  saveStateAndSync(true); // ANINDA KAYDET
+  renderAll(); renderTickets();
   showToast(`${amount >= 0 ? '+' : ''}${amount} 🎟️ ${reason || ''}`);
 }
 
@@ -231,7 +258,8 @@ function confirmCompleteTask() {
     block.studentNote = note;
     block.status = 'pending';
     block.completed = false;
-    saveStateAndSync(); renderAll(); showToast('Onay için gönderildi ⏳');
+    saveStateAndSync(true); // ANINDA KAYDET
+    renderAll(); showToast('Onay için gönderildi 🚀');
   }
   closeModal('completeTaskModal');
 }
@@ -244,11 +272,11 @@ function markBlockPending(blockId, ds) {
   
   if (block.status === 'pending') {
     block.status = 'active'; block.completed = false; block.studentNote = '';
-    saveStateAndSync(); renderAll(); showToast('Görev onaydan çıkarıldı.'); return;
+    saveStateAndSync(true); // ANINDA KAYDET
+    renderAll(); showToast('Görev onaydan çıkarıldı.'); return;
   }
   if (block.status === 'approved') { showToast('🔒 Bu görev zaten onaylandı.'); return; }
   
-  // Eğer active ise not alma modalını aç
   openCompleteModal(blockId, ds);
 }
 
@@ -268,7 +296,8 @@ function approveBlock(blockId, ds) {
     showToast(`Onaylandı! +${reward} 🎟️`);
   } else showToast('Görev onaylandı ✓');
   
-  saveStateAndSync(); renderAll(); renderTickets();
+  saveStateAndSync(true); // ANINDA KAYDET
+  renderAll(); renderTickets();
 }
 
 function rejectBlock(blockId, ds) {
@@ -276,7 +305,8 @@ function rejectBlock(blockId, ds) {
   const block = state.days[ds]?.blocks.find(b => b.id === blockId);
   if (!block) return;
   block.status = 'active'; block.completed = false; block.studentNote = '';
-  saveStateAndSync(); renderAll(); showToast('Görev geri alındı.');
+  saveStateAndSync(true); // ANINDA KAYDET
+  renderAll(); showToast('Görev geri alındı.');
 }
 
 function toggleComplete(blockId, ds) {
@@ -287,7 +317,8 @@ function toggleComplete(blockId, ds) {
     if (block.status === 'approved' || block.completed) {
       block.status = 'active'; block.completed = false; block.studentNote = '';
     } else { approveBlock(blockId, ds); return; }
-    saveStateAndSync(); renderAll();
+    saveStateAndSync(true); // ANINDA KAYDET
+    renderAll();
   } else {
     markBlockPending(blockId, ds);
   }
@@ -397,6 +428,7 @@ function buildBlockHtml(b, ds) {
   const sub = getSubject(b.subjectId);
   const statusClass = b.completed ? 'completed status-approved' : `status-${b.status||'active'}`;
   
+  // YENİ: Detay (📄) butonu eklendi
   return `
     <div class="block-item ${statusClass}" style="border-color:${cat.color}40;">
       <div class="block-stripe" style="background:${cat.color}"></div>
@@ -407,7 +439,10 @@ function buildBlockHtml(b, ds) {
           ${sub ? `<div class="block-subj" style="color:${sub.color}">${sub.name}</div>` : ''}
           ${b.reward ? `<div style="font-size:0.65rem; color:var(--gold); margin-top:4px;">🎟️ Ödül: ${b.reward}</div>` : ''}
         </div>
-        <button class="icon-btn coach-only" style="width:24px; height:24px; font-size:0.7rem; border:none; background:transparent;" onclick="openEditBlock('${b.id}','${ds}'); event.stopPropagation();">✏️</button>
+        <div style="display:flex; gap:6px;">
+          <button class="icon-btn" style="width:26px; height:26px; font-size:0.8rem; border:none; background:transparent;" onclick="openBlockDetail('${b.id}','${ds}'); event.stopPropagation();" title="Detayları Gör">📄</button>
+          <button class="icon-btn coach-only" style="width:26px; height:26px; font-size:0.8rem; border:none; background:transparent;" onclick="openEditBlock('${b.id}','${ds}'); event.stopPropagation();" title="Düzenle">✏️</button>
+        </div>
       </div>
     </div>
   `;
@@ -526,6 +561,48 @@ function buildMonthlyGrid() {
 /* ═══════════════════════════════════════════════════════════
    9. TASK (BLOCK) MANAGEMENT
 ═══════════════════════════════════════════════════════════ */
+// YENİ: Görev Detaylarını Görüntüleme Penceresi
+function openBlockDetail(blockId, ds) {
+  const day = state.days[ds]; if (!day) return;
+  const b = day.blocks.find(x => x.id === blockId); if (!b) return;
+  const cat = getCat(b.catId);
+  const sub = getSubject(b.subjectId);
+  
+  document.getElementById('detailTitle').textContent = b.title;
+  
+  let html = `
+    <div style="margin-bottom:15px; display:flex; gap:8px; flex-wrap:wrap;">
+      <span class="role-badge" style="background:${cat.color}20; color:${cat.color}">${cat.emoji} ${cat.name}</span>
+      ${sub ? `<span class="role-badge" style="background:${sub.color}20; color:${sub.color}">${sub.name}</span>` : ''}
+      ${b.reward ? `<span class="role-badge" style="background:var(--gold)20; color:var(--gold)">🎟️ ${b.reward} Ödül</span>` : ''}
+    </div>
+  `;
+  
+  if(b.desc) {
+     html += `<div><strong style="font-size:0.8rem; color:var(--muted); text-transform:uppercase;">Açıklama / Hedef:</strong><p style="margin-top:5px; white-space:pre-wrap; font-size:0.95rem; color:var(--ink);">${escHtml(b.desc)}</p></div>`;
+  } else {
+     html += `<div style="color:var(--muted); font-size:0.85rem;">Açıklama eklenmemiş.</div>`;
+  }
+  
+  if(b.links && b.links.length > 0) {
+     html += `<div style="margin-top:20px;"><strong style="font-size:0.8rem; color:var(--muted); text-transform:uppercase;">Bağlantılar:</strong><ul style="margin-top:5px; padding-left:20px; font-size:0.95rem;">`;
+     b.links.forEach(l => {
+        html += `<li style="margin-bottom:4px;"><a href="${escHtml(l)}" target="_blank" style="color:var(--navy); text-decoration:none; border-bottom:1px solid var(--navy);">${escHtml(l)}</a></li>`;
+     });
+     html += `</ul></div>`;
+  }
+  
+  if(b.studentNote) {
+     html += `<div style="margin-top:20px; padding:12px; background:rgba(244,162,97,0.1); border-left:4px solid var(--gold); border-radius:6px;">
+                <strong style="font-size:0.8rem; color:var(--gold); text-transform:uppercase;">Öğrenci Tamamlama Notu:</strong><br>
+                <div style="font-size:0.95rem; font-style:italic; margin-top:5px; color:var(--ink);">"${escHtml(b.studentNote)}"</div>
+              </div>`;
+  }
+  
+  document.getElementById('detailBody').innerHTML = html;
+  openModal('blockDetailModal');
+}
+
 function openAddBlock(ds) {
   if (!requiresRole('COACH')) return;
   populateSelects();
@@ -536,7 +613,6 @@ function openAddBlock(ds) {
   document.getElementById('blockReward').value = '';
   document.getElementById('blockLinksContainer').innerHTML = '';
   
-  // YENİ: Yeni görev eklerken Sil butonunu gizle
   const delBtn = document.getElementById('btnDeleteBlock');
   if(delBtn) delBtn.style.display = 'none';
   
@@ -562,7 +638,6 @@ function openEditBlock(blockId, ds) {
   linksContainer.innerHTML = '';
   if (b.links) b.links.forEach(l => addLinkRow(l));
   
-  // YENİ: Var olan bir görevi düzenlerken Sil butonunu göster
   const delBtn = document.getElementById('btnDeleteBlock');
   if(delBtn) delBtn.style.display = 'block';
   
@@ -627,9 +702,7 @@ function addLinkRow(val = '') {
                    <button class="btn-secondary" style="width:auto; padding:0 10px;" onclick="this.parentElement.remove()">✕</button>`;
   container.appendChild(row);
 }
-/* ═══════════════════════════════════════════════════════════
-   10. SUBJECT & CATEGORY MANAGEMENT (+ Silme İşlemleri)
-═══════════════════════════════════════════════════════════ */
+
 function openAddSubject(id = null) {
   if (!requiresRole('COACH')) return;
   document.getElementById('subjectId').value = id || '';
@@ -637,7 +710,6 @@ function openAddSubject(id = null) {
   document.getElementById('subjectName').value = s ? s.name : '';
   document.getElementById('subjectExamDate').value = s ? s.examDate : '';
   
-  // YENİ: Sil butonunu düzenleme modundaysa göster, yeni eklerken gizle
   const delBtn = document.getElementById('btnDeleteSubject');
   if(delBtn) delBtn.style.display = id ? 'block' : 'none';
 
@@ -660,7 +732,6 @@ function saveSubject() {
   saveStateAndSync(); closeModal('addSubjectModal'); renderAll();
 }
 
-// YENİ: Dersi Silme Fonksiyonu
 function deleteSubject() {
   if (!requiresRole('COACH')) return;
   const id = document.getElementById('subjectId').value;
@@ -678,7 +749,6 @@ function openAddCategory(id = null) {
   document.getElementById('catName').value = c ? c.name : '';
   document.getElementById('catEmoji').value = c ? c.emoji : '';
   
-  // Sil butonunu duruma göre göster/gizle
   const delBtn = document.getElementById('btnDeleteCategory');
   if(delBtn) delBtn.style.display = id ? 'block' : 'none';
 
@@ -706,6 +776,8 @@ function deleteCategory() {
   state.categories = state.categories.filter(c => c.id !== id);
   saveStateAndSync(); closeModal('addCategoryModal'); renderAll();
 }
+
+
 /* ═══════════════════════════════════════════════════════════
    11. SIDEBAR PANELS & MANAGE PANELS
 ═══════════════════════════════════════════════════════════ */
@@ -765,8 +837,6 @@ function togglePanelConfig(id, isVisible) {
   renderManagePanelsModal();
 }
 
-// ── YENİ PANELLER ──
-
 function renderCountdownPanel() {
   const p = document.getElementById('panel-countdown'); if(!p) return;
   let html = `<div class="sb-head" onclick="togglePanel('panel-countdown')"><div class="sb-head-title">▼ ⏳ Geri Sayım</div></div><div class="sb-body">`;
@@ -788,38 +858,189 @@ function renderCountdownPanel() {
   html += `</div>`; p.innerHTML = html;
 }
 
+/* ═══════════════════════════════════════════════════════════
+   YENİ: GRAFİKLİ ANALİZ PANELİ
+═══════════════════════════════════════════════════════════ */
+let currentAnaTab = 'tickets';
+let anaChartInstance = null;
+
+function switchAnaTab(tab) {
+  currentAnaTab = tab;
+  renderAnalyticsPanel(); // Sekme değiştiğinde sadece bu paneli re-render et
+}
+
 function renderAnalyticsPanel() {
   const p = document.getElementById('panel-analytics'); if(!p) return;
-  let html = `<div class="sb-head" onclick="togglePanel('panel-analytics')"><div class="sb-head-title">▼ 📊 Analiz & İlerleme</div></div><div class="sb-body">`;
-  
-  let earned = 0; let spent = 0;
-  (state.economy.history || []).forEach(h => { if(h.amount > 0) earned += h.amount; else spent += Math.abs(h.amount); });
-  
-  let approvedTasks = 0; let pendingTasks = 0;
-  Object.values(state.days).forEach(d => {
-      d.blocks.forEach(b => {
-          if(b.status === 'approved') approvedTasks++;
-          if(b.status === 'pending') pendingTasks++;
-      });
-  });
 
+  let html = `<div class="sb-head" onclick="togglePanel('panel-analytics')"><div class="sb-head-title">▼ 📊 Analiz & İlerleme</div></div><div class="sb-body">`;
+
+  // Alt Sekmeler (Sub-tabs)
   html += `
-     <div style="display:flex; gap:10px; margin-bottom:12px;">
-       <div style="flex:1; background:rgba(82,183,136,0.1); padding:10px; border-radius:10px; text-align:center;">
-          <div style="font-size:1.4rem; font-weight:700; color:var(--green); font-family:'DM Mono',monospace;">${earned}</div>
-          <div style="font-size:0.55rem; text-transform:uppercase; color:var(--muted); font-weight:700; letter-spacing:1px;">Kazanılan 🎟️</div>
-       </div>
-       <div style="flex:1; background:rgba(230,57,70,0.1); padding:10px; border-radius:10px; text-align:center;">
-          <div style="font-size:1.4rem; font-weight:700; color:var(--red); font-family:'DM Mono',monospace;">${spent}</div>
-          <div style="font-size:0.55rem; text-transform:uppercase; color:var(--muted); font-weight:700; letter-spacing:1px;">Harcanan 🎟️</div>
-       </div>
-     </div>
-     <div style="background:var(--white); border:1px solid var(--border); padding:12px; border-radius:10px;">
-       <div style="font-size:0.8rem; font-weight:600; margin-bottom:6px; display:flex; justify-content:space-between;"><span>Tamamlanan:</span> <span style="color:var(--navy);">${approvedTasks} Görev</span></div>
-       <div style="font-size:0.8rem; font-weight:600; display:flex; justify-content:space-between;"><span>Bekleyen:</span> <span style="color:var(--gold);">${pendingTasks} Görev</span></div>
-     </div>
-  </div>`;
+    <div class="ana-tabs">
+      <div class="ana-tab ${currentAnaTab==='tickets'?'active':''}" onclick="switchAnaTab('tickets')">🎟️ Ekonomi</div>
+      <div class="ana-tab ${currentAnaTab==='tasks'?'active':''}" onclick="switchAnaTab('tasks')">✅ Görevler</div>
+      <div class="ana-tab ${currentAnaTab==='categories'?'active':''}" onclick="switchAnaTab('categories')">🏷 Dağılım</div>
+    </div>
+  `;
+
+  // Grafik Alanı
+  html += `<div class="chart-container"><canvas id="anaCanvas"></canvas></div>`;
+
+  // Koç için özel Sıfırlama Butonu
+  if(isCoach()) {
+     html += `<button class="btn-secondary" style="border-color:rgba(230,57,70,0.3); color:var(--red); font-size:0.75rem; padding:8px;" onclick="resetAnalyticsData('${currentAnaTab}')">🗑️ Bu Grafiğin Verisini Sıfırla</button>`;
+  }
+
+  html += `</div>`;
   p.innerHTML = html;
+
+  // DOM güncellendikten hemen sonra grafiği çizdir
+  setTimeout(drawAnalyticsChart, 50);
+}
+
+function drawAnalyticsChart() {
+  const ctx = document.getElementById('anaCanvas');
+  if(!ctx) return;
+
+  // Eski grafik varsa yok et (üst üste binmemesi için)
+  if(anaChartInstance) { anaChartInstance.destroy(); }
+
+  // Gece/Gündüz Moduna göre renk ayarları
+  const isDark = document.body.classList.contains('dark-theme');
+  const textColor = isDark ? '#94a3b8' : '#8892a0';
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+
+  // Son 7 Günü Hesapla (X Ekseni İçin)
+  const labels = [];
+  const dates = [];
+  for(let i=6; i>=0; i--) {
+     const d = new Date(); d.setDate(d.getDate() - i);
+     labels.push(d.toLocaleDateString('tr-TR', {weekday:'short'}));
+     dates.push(toDateStr(d));
+  }
+
+  // Ortak Grafik Ayarları
+  let config = {
+    options: {
+       responsive: true,
+       maintainAspectRatio: false,
+       plugins: { legend: { display: false } },
+       scales: {
+          x: { ticks: { color: textColor, font: { size: 10, family: 'Outfit' } }, grid: { display: false } },
+          y: { ticks: { color: textColor, font: { size: 10, family: 'DM Mono' }, stepSize: 1 }, grid: { color: gridColor }, beginAtZero: true }
+       }
+    }
+  };
+
+  // Görev grafiğinin sıfırlanma tarihi (Eğer koç sıfırladıysa, o tarihten öncekileri saymaz)
+  const resetDateObj = new Date(state.analyticsResetDate || 0);
+  resetDateObj.setHours(0,0,0,0);
+
+  // 1. SEKME: EKONOMİ (Çizgi Grafik)
+  if(currentAnaTab === 'tickets') {
+    let earnedData = [0,0,0,0,0,0,0];
+    let spentData = [0,0,0,0,0,0,0];
+    (state.economy.history || []).forEach(h => {
+       const dStr = toDateStr(new Date(h.date));
+       const idx = dates.indexOf(dStr);
+       if(idx !== -1) {
+          if(h.amount > 0) earnedData[idx] += h.amount;
+          else spentData[idx] += Math.abs(h.amount);
+       }
+    });
+
+    config.type = 'line';
+    config.data = {
+       labels,
+       datasets: [
+          { label: 'Kazanılan', data: earnedData, borderColor: '#52B788', backgroundColor: 'rgba(82,183,136,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 2 },
+          { label: 'Harcanan', data: spentData, borderColor: '#E63946', backgroundColor: 'rgba(230,57,70,0.1)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 2 }
+       ]
+    };
+  }
+  
+  // 2. SEKME: GÖREVLER (Sütun Grafik)
+  else if (currentAnaTab === 'tasks') {
+    let completedData = [0,0,0,0,0,0,0];
+    let pendingData = [0,0,0,0,0,0,0];
+    dates.forEach((dStr, idx) => {
+       const dObj = new Date(dStr);
+       if(dObj < resetDateObj) return; // Sıfırlama öncesini sayma
+
+       const blocks = state.days[dStr]?.blocks || [];
+       blocks.forEach(b => {
+          if(b.status === 'approved') completedData[idx]++;
+          else pendingData[idx]++;
+       });
+    });
+
+    config.type = 'bar';
+    config.data = {
+       labels,
+       datasets: [
+          { label: 'Tamamlanan', data: completedData, backgroundColor: isDark ? '#60a5fa' : '#1D3557', borderRadius: 4 },
+          { label: 'Bekleyen/Aktif', data: pendingData, backgroundColor: '#F4A261', borderRadius: 4 }
+       ]
+    };
+  }
+  
+  // 3. SEKME: KATEGORİ DAĞILIMI (Doughnut / Pasta Grafik)
+  else if (currentAnaTab === 'categories') {
+    let catLabels = [];
+    let catData = [];
+    let catColors = [];
+    state.categories.forEach(c => {
+       let count = 0;
+       Object.entries(state.days).forEach(([dStr, day]) => {
+          const dObj = new Date(dStr);
+          if(dObj >= resetDateObj) { // Sıfırlama sonrasını say
+             (day.blocks || []).forEach(b => {
+                if(b.status === 'approved' && b.catId === c.id) count++;
+             });
+          }
+       });
+       if(count > 0) {
+          catLabels.push(c.emoji + ' ' + c.name);
+          catData.push(count);
+          catColors.push(c.color);
+       }
+    });
+
+    // Veri yoksa boş gri pasta çiz
+    if(catData.length === 0) { catLabels = ['Veri Yok']; catData = [1]; catColors = [isDark ? '#334155' : '#e2e8f0']; }
+
+    config.type = 'doughnut';
+    config.data = {
+       labels: catLabels,
+       datasets: [{ data: catData, backgroundColor: catColors, borderWidth: 2, borderColor: isDark ? '#1e293b' : '#ffffff' }]
+    };
+    // Pasta grafik için eksenleri gizle ve legende ayarı yap
+    config.options.scales = { x: {display:false}, y: {display:false} };
+    config.options.plugins.legend = { display: true, position: 'right', labels: { color: textColor, boxWidth: 10, font: {size: 10, family: 'Outfit'} } };
+    config.options.cutout = '65%';
+  }
+
+  // Grafik Kütüphanesi başarılı yüklendiyse Render et
+  if (typeof Chart !== 'undefined') {
+     anaChartInstance = new Chart(ctx, config);
+  } else {
+     ctx.parentElement.innerHTML = '<div style="font-size:0.75rem; color:var(--red); text-align:center; padding-top:40px;">Grafik modülü yüklenemedi.</div>';
+  }
+}
+function resetAnalyticsData(tab) {
+  if(!requiresRole('COACH')) return;
+
+  if(tab === 'tickets') {
+     if(!confirm('Bilet kazanma/harcama grafiğini sıfırlamak istiyor musun? (Mevcut bakiyen güvende kalır)')) return;
+     state.economy.history = []; // Sadece bilet grafiği tarihçesini temizler
+  } else {
+     if(!confirm('Görev/Kategori grafiklerini bugünden itibaren sıfırlamak istiyor musun? (Öğrencinin geçmiş görevleri planda kalır, sadece analizden gizlenir)')) return;
+     state.analyticsResetDate = Date.now(); // Güvenli Sıfırlama: Eski verileri silmez, grafiğe yansıtmaz
+  }
+
+  saveStateAndSync(true);
+  renderAll();
+  showToast('📊 Grafik verisi sıfırlandı!');
 }
 
 function renderGeneralNotesPanel() {
@@ -843,7 +1064,7 @@ function renderTicketHistoryPanel() {
   if(!state.economy.history || state.economy.history.length === 0) {
      html += `<div style="font-size:0.8rem; color:var(--muted); text-align:center;">Geçmiş bulunmuyor.</div>`;
   } else {
-     const hist = [...state.economy.history].reverse().slice(0, 8); // Son 8 işlemi göster
+     const hist = [...state.economy.history].reverse().slice(0, 8); 
      hist.forEach(h => {
         const color = h.amount >= 0 ? 'var(--green)' : 'var(--red)';
         const sign = h.amount >= 0 ? '+' : '';
@@ -963,31 +1184,16 @@ function updateClock() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   13. INIT
-═══════════════════════════════════════════════════════════ */
-loadState();
-bootSession();
-
-currentDate = new Date();
-renderAll();
-switchView('weekly');
-updateClock();
-setInterval(updateClock, 1000);
-
-if (activeAccountId) {
-  setTimeout(() => { loadFromCloud(); }, 1000); 
-}
-
-/* ═══════════════════════════════════════════════════════════
    14. DARK THEME CONTROLLER
 ═══════════════════════════════════════════════════════════ */
 function toggleTheme() {
   const isDark = document.body.classList.toggle('dark-theme');
   const btn = document.getElementById('themeToggleBtn');
   if (btn) btn.textContent = isDark ? '☀️' : '🌙';
-  
-  // Tercihi tarayıcı hafızasına kaydet (Cloud'dan bağımsız, cihaza özel)
   localStorage.setItem('studyCircus_theme', isDark ? 'dark' : 'light');
+  
+  // YENİ EKLENEN SATIR: Tema değişince grafiği anında yeni renklerle baştan çiz!
+  if(typeof drawAnalyticsChart === 'function') drawAnalyticsChart();
 }
 
 function loadTheme() {
@@ -999,4 +1205,19 @@ function loadTheme() {
   }
 }
 
-loadTheme(); // <-- Bunu INIT bloğuna ekle
+/* ═══════════════════════════════════════════════════════════
+   13. INIT
+═══════════════════════════════════════════════════════════ */
+loadState();
+loadTheme();
+bootSession();
+
+currentDate = new Date();
+renderAll();
+switchView('weekly');
+updateClock();
+setInterval(updateClock, 1000);
+
+if (activeAccountId) {
+  setTimeout(() => { loadFromCloud(true); }, 1000); 
+}

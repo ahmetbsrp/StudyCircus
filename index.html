@@ -280,8 +280,19 @@
   </div>
 </div>
 
-<div id="toastContainer"></div>
+<div class="overlay" id="blockDetailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="detailTitle">—</div>
+      <button class="modal-close" onclick="closeModal('blockDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailBody">
+      </div>
+  </div>
+</div>
 
+<div id="toastContainer"></div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="./main.js"></script>
 
 </body>

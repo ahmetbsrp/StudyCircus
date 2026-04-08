@@ -30,7 +30,28 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
 }
+/* ═══════════════════════════════════════════════════════════
+   ANALİZ PANELİ (SUB-TABS & CHARTS)
+═══════════════════════════════════════════════════════════ */
+.ana-tabs {
+  display: flex; gap: 4px; margin-bottom: 15px;
+  background: rgba(29,53,87,0.06); padding: 4px; border-radius: 10px;
+}
+.ana-tab {
+  flex: 1; text-align: center; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  padding: 8px 0; border-radius: 8px; cursor: pointer;
+  color: var(--muted); transition: all 0.2s;
+}
+.ana-tab.active {
+  background: var(--white); color: var(--navy);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+body.dark-theme .ana-tabs { background: rgba(255,255,255,0.05); }
+body.dark-theme .ana-tab.active { background: var(--white); color: var(--ink); }
 
+.chart-container {
+  position: relative; height: 180px; width: 100%; margin-bottom: 15px;
+}
 /* ═══════════════════════════════════════════════════════════
    DARK THEME (GECE MODU)
 ═══════════════════════════════════════════════════════════ */
