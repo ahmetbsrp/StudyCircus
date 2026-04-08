@@ -536,6 +536,10 @@ function openAddBlock(ds) {
   document.getElementById('blockReward').value = '';
   document.getElementById('blockLinksContainer').innerHTML = '';
   
+  // YENİ: Yeni görev eklerken Sil butonunu gizle
+  const delBtn = document.getElementById('btnDeleteBlock');
+  if(delBtn) delBtn.style.display = 'none';
+  
   document.getElementById('blockModalTitle').textContent = 'Yeni Görev Ekle';
   openModal('addBlockModal');
 }
@@ -557,6 +561,10 @@ function openEditBlock(blockId, ds) {
   const linksContainer = document.getElementById('blockLinksContainer');
   linksContainer.innerHTML = '';
   if (b.links) b.links.forEach(l => addLinkRow(l));
+  
+  // YENİ: Var olan bir görevi düzenlerken Sil butonunu göster
+  const delBtn = document.getElementById('btnDeleteBlock');
+  if(delBtn) delBtn.style.display = 'block';
   
   document.getElementById('blockModalTitle').textContent = 'Görevi Düzenle';
   openModal('addBlockModal');
@@ -594,11 +602,20 @@ function saveBlock() {
   saveStateAndSync(); closeModal('addBlockModal'); renderAll();
 }
 
-function deleteBlock(bId, ds) {
+function deleteBlock() {
   if (!requiresRole('COACH')) return;
+  const bId = document.getElementById('blockId').value;
+  const ds = document.getElementById('blockDay').value;
+  
+  if(!bId || !ds) return;
   if(!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
-  state.days[ds].blocks = state.days[ds].blocks.filter(b => b.id !== bId);
-  saveStateAndSync(); closeModal('blockDetailModal'); renderAll();
+  
+  if (state.days[ds]) {
+    state.days[ds].blocks = state.days[ds].blocks.filter(b => b.id !== bId);
+    saveStateAndSync(); 
+    closeModal('addBlockModal'); 
+    renderAll();
+  }
 }
 
 function addLinkRow(val = '') {
